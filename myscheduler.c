@@ -5,8 +5,8 @@
 
 
 //  CITS2002 Project 1 2023
-//  Student1:   STUDENT-NUMBER1   Dylan Arto
-//  Student2:   STUDENT-NUMBER2   NAME-2
+//  Student1:   23360073   Dylan Arto
+//  Student2:   23390554   Jeremy Butson
 
 
 //  myscheduler (v1.0)
