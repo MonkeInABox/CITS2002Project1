@@ -53,18 +53,17 @@ void read_commands(char argv0[], char filename[])
     FILE *commandsFile;
     commandsFile = fopen(filename, "r");
     if(commandsFile == NULL){
-        
     }
     char* commands[MAX_COMMANDS];
-    char* placeHolder[100][1000];
+    char placeHolder[100][1000];
 
     int line = 0;
-    while(!feof(filename) && !ferror(filename)){
-        if(fgets(placeHolder[line], 1000, filename) != NULL){
+    while(!feof(commandsFile) && !ferror(commandsFile)){
+        if(fgets(placeHolder[line], 1000, commandsFile) != NULL){
             line++;
         }
     }
-    fclose(filename);
+    fclose(commandsFile);
 
     for(int i = 0; i < line; i++){
         printf("%s", placeHolder[i]);
