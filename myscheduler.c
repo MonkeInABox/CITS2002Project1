@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 //  you may need other standard header files
@@ -42,16 +41,21 @@
 
 void read_sysconfig(char argv0[], char filename[])
 {
+    char* deviceName[MAX_DEVICES];
+    int readSpeed[MAX_DEVICES];
+    int writeSpeed[MAX_DEVICES];
 }
 
 void read_commands(char argv0[], char filename[])
 {
+    char* commands[MAX_COMMANDS];
 }
 
 //  ----------------------------------------------------------------------
 
 void execute_commands(void)
 {
+
 }
 
 //  ----------------------------------------------------------------------
