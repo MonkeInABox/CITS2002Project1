@@ -41,10 +41,10 @@
 
 void read_sysconfig(char argv0[], char filename[])
 {
-    char* deviceName[MAX_DEVICES];
+        char* deviceName[MAX_DEVICES];
     int readSpeed[MAX_DEVICES];
     int writeSpeed[MAX_DEVICES];
-    FILE *sysconfigFile;
+FILE *sysconfigFile;
     sysconfigFile = fopen(filename, "r");
     if(sysconfigFile == NULL){
         exit(EXIT_FAILURE);
@@ -68,6 +68,7 @@ void read_commands(char argv0[], char filename[])
     FILE *commandsFile;
     commandsFile = fopen(filename, "r");
     if(commandsFile == NULL){
+    
     }
     char* commands[MAX_COMMANDS];
     char placeHolder[100][1000];
