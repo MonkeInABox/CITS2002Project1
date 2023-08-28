@@ -5,7 +5,7 @@
 
 
 //  CITS2002 Project 1 2023
-//  Student1:   STUDENT-NUMBER1   NAME-1
+//  Student1:   STUDENT-NUMBER1   Dylan Arto
 //  Student2:   STUDENT-NUMBER2   NAME-2
 
 
