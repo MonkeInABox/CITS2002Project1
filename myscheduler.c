@@ -50,7 +50,25 @@ void read_sysconfig(char argv0[], char filename[])
 
 void read_commands(char argv0[], char filename[])
 {
+    FILE *commandsFile;
+    commandsFile = fopen(filename, "r");
+    if(commandsFile == NULL){
+        return 1;
+    }
     char* commands[MAX_COMMANDS];
+    char* placeHolder[100][1000];
+
+    int line = 0;
+    while(!feof(filename) && !ferror(filename)){
+        if(fgets(placeHolder[line], 1000, filename) != NULL){
+            line++;
+        }
+    }
+    fclose(filename);
+
+    for(int i = 0; i < line; i++){
+        printf("%s", placeHolder[i]);
+    }
 }
 
 //  ----------------------------------------------------------------------
