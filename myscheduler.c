@@ -41,6 +41,8 @@
 
 void read_sysconfig(char argv0[], char filename[])
 {
+    FILE *sysconfigFile;
+    sysconfigFile = fopen(filename, "r");
     char* deviceName[MAX_DEVICES];
     int readSpeed[MAX_DEVICES];
     int writeSpeed[MAX_DEVICES];
