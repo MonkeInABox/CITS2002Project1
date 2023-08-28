@@ -53,7 +53,7 @@ void read_commands(char argv0[], char filename[])
     FILE *commandsFile;
     commandsFile = fopen(filename, "r");
     if(commandsFile == NULL){
-        return 1;
+        
     }
     char* commands[MAX_COMMANDS];
     char* placeHolder[100][1000];
