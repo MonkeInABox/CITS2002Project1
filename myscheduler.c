@@ -49,7 +49,7 @@ void read_sysconfig(char argv0[], char filename[])
     if(sysconfigFile == NULL){
         exit(EXIT_FAILURE);
     }
-    char* placeHolder[100][1000];
+    char placeHolder[100][1000];
     int line = 0;
     while(!feof(sysconfigFile) && !ferror(sysconfigFile)){
         if(fgets(placeHolder[line], 1000, sysconfigFile) != NULL){
@@ -57,7 +57,6 @@ void read_sysconfig(char argv0[], char filename[])
         }
     }
     fclose(sysconfigFile);
-
     for(int i = 0; i < line; i++){
         printf("%s", placeHolder[i]);
     }
@@ -71,7 +70,7 @@ void read_commands(char argv0[], char filename[])
         
     }
     char* commands[MAX_COMMANDS];
-    char* placeHolder[100][1000];
+    char placeHolder[100][1000];
 
     int line = 0;
     while(!feof(filename) && !ferror(filename)){
