@@ -41,10 +41,11 @@
 
 void read_sysconfig(char argv0[], char filename[])
 {
-        char* deviceName[MAX_DEVICES];
+    char* deviceName[MAX_DEVICES];
     int readSpeed[MAX_DEVICES];
     int writeSpeed[MAX_DEVICES];
-FILE *sysconfigFile;
+    FILE *sysconfigFile;
+
     sysconfigFile = fopen(filename, "r");
     if(sysconfigFile == NULL){
         exit(EXIT_FAILURE);
@@ -59,6 +60,34 @@ FILE *sysconfigFile;
     fclose(sysconfigFile);
     for(int i = 0; i < line; i++){
         printf("%s", placeHolder[i]);
+    }
+
+    int dataTypeNumber = 0;
+    for(int i = 0; i < line; i++) {
+        if(placeHolder[i][0] != CHAR_COMMENT){
+            for(){
+                if(dataTypeNumber == 0){
+                    dataTypeNumber++; 
+                }
+                if(dataTypeNumber == 1){
+                    deviceName[i] = ;
+                    dataTypeNumber++;
+                }
+                if(dataTypeNumber == 2){
+                    if(!= 'B'){
+                        readSpeed[i] = ;
+                        dataTypeNumber++;
+                    }
+                }
+                if(dataTypeNumber == 3){
+                    if(!= 'B'){
+                        writeSpeed[i] = ;
+                        dataTypeNumber = 0;
+                    }
+                }
+            }
+        }
+        dataTypeNumber = 0;
     }
 }
 
