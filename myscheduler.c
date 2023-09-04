@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 //  you may need other standard header files
 
 
@@ -42,8 +43,8 @@
 void read_sysconfig(char argv0[], char filename[])
 {
     char* deviceName[MAX_DEVICES];
-    int readSpeed[MAX_DEVICES];
-    int writeSpeed[MAX_DEVICES];
+    char* readSpeed[MAX_DEVICES];
+    char* writeSpeed[MAX_DEVICES];
     FILE *sysconfigFile;
 
     sysconfigFile = fopen(filename, "r");
@@ -64,30 +65,19 @@ void read_sysconfig(char argv0[], char filename[])
 
     int dataTypeNumber = 0;
     for(int i = 0; i < line; i++) {
-        if(placeHolder[i][0] != CHAR_COMMENT){
-            for(){
-                if(dataTypeNumber == 0){
-                    dataTypeNumber++; 
-                }
-                if(dataTypeNumber == 1){
-                    deviceName[i] = ;
-                    dataTypeNumber++;
-                }
-                if(dataTypeNumber == 2){
-                    if(!= 'B'){
-                        readSpeed[i] = ;
-                        dataTypeNumber++;
-                    }
-                }
-                if(dataTypeNumber == 3){
-                    if(!= 'B'){
-                        writeSpeed[i] = ;
-                        dataTypeNumber = 0;
-                    }
-                }
+        stringTemp = strtok(placeHolder[i], ' ');
+        while(stringTemp != NULL){
+            if(dataTypeNumber == 1){
+                deviceName[i] = stringTemp;
             }
+            if(dataTypeNumber == 2){
+                readSpeed[i] = stringTemp;
+            }
+            if(dataTypeNumber == 3){
+                writeSpeed[i] = stringTemp;
+            }
+            dataTypeNumber++;
         }
-        dataTypeNumber = 0;
     }
 }
 
