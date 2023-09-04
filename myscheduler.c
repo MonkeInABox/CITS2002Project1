@@ -65,18 +65,21 @@ void read_sysconfig(char argv0[], char filename[])
 
     int dataTypeNumber = 0;
     for(int i = 0; i < line; i++) {
-        stringTemp = strtok(placeHolder[i], ' ');
-        while(stringTemp != NULL){
-            if(dataTypeNumber == 1){
-                deviceName[i] = stringTemp;
+        if(placeHolder[i][0] != '*'){
+            stringTemp = strtok(placeHolder[i], ' ');
+            while(stringTemp != NULL){
+                if(dataTypeNumber == 1){
+                    deviceName[i] = stringTemp;
+                }
+                if(dataTypeNumber == 2){
+                    readSpeed[i] = stringTemp;
+                }
+                if(dataTypeNumber == 3){
+                    writeSpeed[i] = stringTemp;
+                }
+                dataTypeNumber++;
             }
-            if(dataTypeNumber == 2){
-                readSpeed[i] = stringTemp;
-            }
-            if(dataTypeNumber == 3){
-                writeSpeed[i] = stringTemp;
-            }
-            dataTypeNumber++;
+            dataTypeNumber = 0;
         }
     }
 }
