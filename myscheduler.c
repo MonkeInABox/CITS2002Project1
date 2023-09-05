@@ -62,11 +62,12 @@ void read_sysconfig(char argv0[], char filename[])
     for(int i = 0; i < line; i++){
         printf("%s", placeHolder[i]);
     }
-
+    
     int dataTypeNumber = 0;
     for(int i = 0; i < line; i++) {
-        if(placeHolder[i][0] != '*'){
-            stringTemp = strtok(placeHolder[i], ' ');
+        if(placeHolder[i][0] != "*"){
+            char* stringTemp;
+            stringTemp = strtok(placeHolder[i], " ");
             while(stringTemp != NULL){
                 if(dataTypeNumber == 1){
                     deviceName[i] = stringTemp;
@@ -82,6 +83,7 @@ void read_sysconfig(char argv0[], char filename[])
             dataTypeNumber = 0;
         }
     }
+    printf("%s", deviceName[1]);
 }
 
 void read_commands(char argv0[], char filename[])
