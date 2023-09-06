@@ -82,10 +82,9 @@ void read_sysconfig(char argv0[], char filename[])
                     stringTemp = strtok(NULL, "\t");
                 }
                 dataTypeNumber++;
-                printf("%s", deviceName[1]);
+                printf("%s", stringTemp);
+                stringTemp = strtok(NULL, "\t");
             }
-            printf("%s", stringTemp);
-            stringTemp = strtok(NULL, "\t");
             dataTypeNumber = 0;
         }
     }
