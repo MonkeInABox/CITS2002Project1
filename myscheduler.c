@@ -85,7 +85,7 @@ void read_sysconfig(char argv0[], char filename[])
             dataTypeNumber = 0;
         }
     }
-    printf("%s", deviceName[1]);
+    printf("%s", deviceName[0]);
 }
 
 void read_commands(char argv0[], char filename[])
