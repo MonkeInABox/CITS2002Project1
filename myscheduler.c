@@ -71,14 +71,14 @@ void read_sysconfig(char argv0[], char filename[])
             while(stringTemp != NULL){
                 if(dataTypeNumber == 1){
                     deviceName[i-2] = stringTemp;
-                    printf("%s \n", deviceName[i-2]);
-                    printf("%i", i-2);
                 }
                 if(dataTypeNumber == 2){
-                    readSpeed[i] = stringTemp;
+                    readSpeed[i-2] = stringTemp;
+                    printf("%s \n", readSpeed[i-2]);
+                    printf("%i", i-2);
                 }
                 if(dataTypeNumber == 3){
-                    writeSpeed[i] = stringTemp;
+                    writeSpeed[i-2] = stringTemp;
                 }
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
