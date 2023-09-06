@@ -71,7 +71,7 @@ void read_sysconfig(char argv0[], char filename[])
             while(stringTemp != NULL){
                 if(dataTypeNumber == 1){
                     deviceName[i] = stringTemp;
-                    //printf("%s \n", stringTemp);
+                    printf("%s \n", deviceName[i]);
                 }
                 if(dataTypeNumber == 2){
                     readSpeed[i] = stringTemp;
@@ -85,7 +85,6 @@ void read_sysconfig(char argv0[], char filename[])
             dataTypeNumber = 0;
         }
     }
-    printf("%s", deviceName[0]);
 }
 
 void read_commands(char argv0[], char filename[])
