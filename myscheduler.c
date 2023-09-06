@@ -70,9 +70,9 @@ void read_sysconfig(char argv0[], char filename[])
             stringTemp = strtok(placeHolder[i], " ");
             while(stringTemp != NULL){
                 if(dataTypeNumber == 1){
-                    deviceName[i] = stringTemp;
-                    printf("%s \n", deviceName[i]);
-                    printf("%i", i);
+                    deviceName[i-2] = stringTemp;
+                    printf("%s \n", deviceName[i-2]);
+                    printf("%i", i-2);
                 }
                 if(dataTypeNumber == 2){
                     readSpeed[i] = stringTemp;
