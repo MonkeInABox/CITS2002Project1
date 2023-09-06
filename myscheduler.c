@@ -80,7 +80,6 @@ void read_sysconfig(char argv0[], char filename[])
                     writeSpeed[i] = stringTemp;
                 }
                 dataTypeNumber++;
-                stringTemp = strtok(NULL, "\t");
             }
             dataTypeNumber = 0;
         }
