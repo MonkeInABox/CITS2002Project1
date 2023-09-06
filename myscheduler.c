@@ -83,7 +83,7 @@ void read_sysconfig(char argv0[], char filename[])
             dataTypeNumber = 0;
         }
     }
-    printf("%s", "poop"); + //deviceName[1]//);
+    printf("%s", "poop"); //deviceName[1]//);
 }
 
 void read_commands(char argv0[], char filename[])
