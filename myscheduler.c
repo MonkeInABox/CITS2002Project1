@@ -76,11 +76,14 @@ void read_sysconfig(char argv0[], char filename[])
                 }
                 if(dataTypeNumber == 2){
                     readSpeed[i] = stringTemp;
+                    stringTemp = strtok(NULL, " ");
                 }
                 if(dataTypeNumber == 3){
                     writeSpeed[i] = stringTemp;
+                    stringTemp = strtok(NULL, " ");
                 }
                 dataTypeNumber++;
+                stringTemp = strtok(NULL, " ");
             }
             dataTypeNumber = 0;
         }
