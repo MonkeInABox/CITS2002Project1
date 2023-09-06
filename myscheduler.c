@@ -75,9 +75,11 @@ void read_sysconfig(char argv0[], char filename[])
                 }
                 if(dataTypeNumber == 2){
                     readSpeed[i] = stringTemp;
+                    printf("%s \n", stringTemp);
                 }
                 if(dataTypeNumber == 3){
                     writeSpeed[i] = stringTemp;
+                    printf("%s \n", stringTemp);
                 }
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
