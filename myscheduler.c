@@ -71,6 +71,7 @@ void read_sysconfig(char argv0[], char filename[])
             while(stringTemp != NULL){
                 if(dataTypeNumber == 1){
                     deviceName[i] = stringTemp;
+                    printf("%s", stringTemp);
                     stringTemp = strtok(NULL, "\t");
                 }
                 if(dataTypeNumber == 2){
@@ -82,7 +83,6 @@ void read_sysconfig(char argv0[], char filename[])
                     stringTemp = strtok(NULL, "\t");
                 }
                 dataTypeNumber++;
-                printf("%s", stringTemp);
                 stringTemp = strtok(NULL, "\t");
             }
             dataTypeNumber = 0;
