@@ -67,7 +67,7 @@ void read_sysconfig(char argv0[], char filename[])
     for(int i = 0; i < line; i++) {
         if(placeHolder[i] != "#"){
             char* stringTemp;
-            stringTemp = strtok(placeHolder[i], "\t");
+            stringTemp = strtok(placeHolder[i], " ");
             while(stringTemp != NULL){
                 if(dataTypeNumber == 1){
                     deviceName[i] = stringTemp;
