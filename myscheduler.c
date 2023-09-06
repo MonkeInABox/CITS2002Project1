@@ -79,9 +79,9 @@ void read_sysconfig(char argv0[], char filename[])
                     writeSpeed[i] = stringTemp;
                 }
                 dataTypeNumber++;
+                printf("%s", deviceName[1]);
             }
             dataTypeNumber = 0;
-            printf("%s", deviceName[1]);
         }
     }
 }
