@@ -42,19 +42,19 @@
 
 void read_sysconfig(char argv0[], char filename[])
 {
-    char* deviceName[MAX_DEVICES];
-    char* readSpeed[MAX_DEVICES];
-    char* writeSpeed[MAX_DEVICES];
+    char *deviceName[MAX_DEVICES];
+    char *readSpeed[MAX_DEVICES];
+    char *writeSpeed[MAX_DEVICES];
     FILE *sysconfigFile;
 
     sysconfigFile = fopen(filename, "r");
     if(sysconfigFile == NULL){
         exit(EXIT_FAILURE);
     }
-    char placeHolder[100][1000];
+    char placeHolder[MAX_DEVICES + 4][150];
     int line = 0;
     while(!feof(sysconfigFile) && !ferror(sysconfigFile)){
-        if(fgets(placeHolder[line], 1000, sysconfigFile) != NULL){
+        if(fgets(placeHolder[line], 150, sysconfigFile) != NULL){
             line++;
         }
     }
