@@ -65,7 +65,7 @@ void read_sysconfig(char argv0[], char filename[])
     
     int dataTypeNumber = 0;
     for(int i = 0; i < line; i++) {
-        if(placeHolder[i][0] != "*"){
+        if(placeHolder[i] != "#"){
             char* stringTemp;
             stringTemp = strtok(placeHolder[i], "\t");
             while(stringTemp != NULL){
