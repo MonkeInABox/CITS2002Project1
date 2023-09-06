@@ -81,6 +81,7 @@ void read_sysconfig(char argv0[], char filename[])
                 dataTypeNumber++;
                 printf("%s", deviceName[1]);
             }
+            printf("%s", stringTemp);
             dataTypeNumber = 0;
         }
     }
