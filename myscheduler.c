@@ -74,8 +74,8 @@ void read_sysconfig(char argv0[], char filename[])
                 }
                 if(dataTypeNumber == 2){
                     readSpeed[i-2] = stringTemp;
-                    printf("%s \n", readSpeed[i-2]);
-                    printf("%i", i-2);
+                    //printf("%s \n", readSpeed[i-2]);
+                    //printf("%i", i-2);
                 }
                 if(dataTypeNumber == 3){
                     writeSpeed[i-2] = stringTemp;
