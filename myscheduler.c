@@ -108,9 +108,9 @@ void read_commands(char argv0[], char filename[])
     }
     fclose(commandsFile);
 
-    for(int i = 0; i < line; i++){
-        printf("%s", placeHolder[i]);
-    }
+    //for(int i = 0; i < line; i++){
+        //printf("%s", placeHolder[i]);
+    //}
 }
 
 //  ----------------------------------------------------------------------
