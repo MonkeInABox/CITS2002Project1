@@ -71,21 +71,22 @@ void read_sysconfig(char argv0[], char filename[])
             while(stringTemp != NULL){
                 if(dataTypeNumber == 1){
                     deviceName[i] = stringTemp;
-                    printf("%s \n", stringTemp);
+                    //printf("%s \n", stringTemp);
                 }
                 if(dataTypeNumber == 2){
                     readSpeed[i] = stringTemp;
-                    printf("%s \n", stringTemp);
                 }
                 if(dataTypeNumber == 3){
                     writeSpeed[i] = stringTemp;
-                    printf("%s \n", stringTemp);
                 }
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
             }
             dataTypeNumber = 0;
         }
+    }
+    for(int i = 0; i < 6; i++){
+        printf("%s", deviceName[i]);
     }
 }
 
