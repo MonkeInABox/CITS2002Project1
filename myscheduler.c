@@ -59,9 +59,9 @@ void read_sysconfig(char argv0[], char filename[])
         }
     }
     fclose(sysconfigFile);
-    for(int i = 0; i < line; i++){
-        printf("%s", placeHolder[i]);
-    }
+    //for(int i = 0; i < line; i++){
+        //printf("%s", placeHolder[i]);
+    //}
     
     int dataTypeNumber = 0;
     for(int i = 0; i < line; i++) {
