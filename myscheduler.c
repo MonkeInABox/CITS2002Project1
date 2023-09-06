@@ -68,20 +68,24 @@ void read_sysconfig(char argv0[], char filename[])
         if(placeHolder[i] != "#"){
             char* stringTemp;
             stringTemp = strtok(placeHolder[i], "\t");
-            if(stringTemp != NULL){
+            while(stringTemp != NULL){
                 if(dataTypeNumber == 1){
                     deviceName[i] = stringTemp;
+                    stringTemp = strtok(NULL, "\t");
                 }
                 if(dataTypeNumber == 2){
                     readSpeed[i] = stringTemp;
+                    stringTemp = strtok(NULL, "\t");
                 }
                 if(dataTypeNumber == 3){
                     writeSpeed[i] = stringTemp;
+                    stringTemp = strtok(NULL, "\t");
                 }
                 dataTypeNumber++;
                 printf("%s", deviceName[1]);
             }
             printf("%s", stringTemp);
+            stringTemp = strtok(NULL, "\t");
             dataTypeNumber = 0;
         }
     }
