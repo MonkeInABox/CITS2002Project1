@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//  you may need other standard header files
 
 
 //  CITS2002 Project 1 2023
@@ -42,11 +41,13 @@
 
 void read_sysconfig(char argv0[], char filename[])
 {
+    //create 3 arrays to store the three types of data in the system config file
     char *deviceName[MAX_DEVICES];
     char *readSpeed[MAX_DEVICES];
     char *writeSpeed[MAX_DEVICES];
     FILE *sysconfigFile;
 
+    //open and read the system config file, getting each line as a string
     sysconfigFile = fopen(filename, "r");
     if(sysconfigFile == NULL){
         exit(EXIT_FAILURE);
@@ -63,6 +64,8 @@ void read_sysconfig(char argv0[], char filename[])
         //printf("%s", placeHolder[i]);
     //}
     
+    //split each line into the different types of data, putting the respective data in their respective arrays, 
+    //using dataTypeNumber to keep track of what type of data is being accessed. 
     int dataTypeNumber = 0;
     for(int i = 1; i < 7; i++) {
         if(placeHolder[i] != "#"){
@@ -71,6 +74,8 @@ void read_sysconfig(char argv0[], char filename[])
             while(stringTemp != NULL){
                 if(dataTypeNumber == 1){
                     deviceName[i-2] = stringTemp;
+                    //printf("%s \n", deviceName[i-2]);
+                    //printf("%i", i-2);
                 }
                 if(dataTypeNumber == 2){
                     readSpeed[i-2] = stringTemp;
@@ -79,6 +84,8 @@ void read_sysconfig(char argv0[], char filename[])
                 }
                 if(dataTypeNumber == 3){
                     writeSpeed[i-2] = stringTemp;
+                    //printf("%s \n", writeSpeed[i-2]);
+                    //printf("%i", i-2);
                 }
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
