@@ -116,11 +116,28 @@ void read_commands(char argv0[], char filename[])
     //for(int i = 0; i < line; i++){
         //printf("%s", placeHolder[i]);
     //}
+
+    for(int i = 0; i < line; i++) {
+        if(placeHolder[i] != "#"){
+            i++;
+            if(placeHolder[i] != " "){
+                i++;
+                char* stringTemp;
+                stringTemp = strtok(placeHolder[i], " ");
+                while(stringTemp != NULL){
+                    
+                    stringTemp = strtok(NULL, " ");
+                }
+            }
+        }
+    }
+    return ();
 }
+
 
 //  ----------------------------------------------------------------------
 
-void execute_commands(void)
+int execute_commands(char* )
 {
 
 }
