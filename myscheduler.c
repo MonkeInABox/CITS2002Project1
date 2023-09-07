@@ -131,13 +131,12 @@ void read_commands(char argv0[], char filename[])
             }
         }
     }
-    return ();
 }
 
 
 //  ----------------------------------------------------------------------
 
-int execute_commands(char* )
+int execute_commands()
 {
 
 }
