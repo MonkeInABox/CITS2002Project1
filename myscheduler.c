@@ -80,12 +80,12 @@ void read_sysconfig(char argv0[], char filename[])
                 if(dataTypeNumber == 2){
                     readSpeed[i-2] = atoi(stringTemp);
                     //printf("%i \n", readSpeed[i-2]);
-                    //printf("%i", i-2);
+                    //printf("%i \n", i-2);
                 }
                 if(dataTypeNumber == 3){
                     writeSpeed[i-2] = atoi(stringTemp);
                     //printf("%i \n", writeSpeed[i-2]);
-                    //printf("%i", i-2);
+                    //printf("%i \n", i-2);
                 }
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
@@ -118,13 +118,59 @@ void read_commands(char argv0[], char filename[])
     //}
 
     char* commandName;
+    int waitTime[100];
+    char* function[100];
+    char* position[100];
+    int sleepTime[100];
+    int amountOfB[100];
+    int sleep = 0;
     int i = 0;
+    int dataTypeNumber = 0;
     if(placeHolder[i] != "#"){
         i++;
         commandName = placeHolder[i]; 
-        
+        printf("%s", commandName);
+        i++;
+        char* stringTemp;
+        stringTemp = strtok(placeHolder[i], " ");
+        i = 0;
+        while(stringTemp != NULL){
+            if(dataTypeNumber == 0){
+                waitTime[i-2] = atoi(stringTemp);
+                printf("%i \n", waitTime[i-2]);
+                //printf("%i", i-2);
+            }
+            if(dataTypeNumber == 1){
+                function[i-2] = stringTemp;
+                if(stringTemp == "Sleep"){
+                    sleep = 1;
+                }
+                else{sleep = 0;}
+                printf("%s \n", function[i-2]);
+                //printf("%i \n", i-2);
+                printf("%i \n", sleep);
+            }
+            if(dataTypeNumber == 2){
+                if(sleep = 1){
+                    sleepTime[i-2] = atoi(stringTemp);
+                }
+                else{position[i-2] = stringTemp;}
+                printf("%s \n", position[i-2]);
+                //printf("%i \n", i-2);
+                printf("%i \n", sleepTime[i-2]);
+            }
+            if(dataTypeNumber == 3){
+                amountOfB[i-2] = atoi(stringTemp);
+                printf("%i \n", amountOfB[i-2]);
+                //printf("%i \n", i-2);
+            }
+            dataTypeNumber++;
+            stringTemp = strtok(NULL, " ");
+        }
+        dataTypeNumber = 0;
     }
 }
+
 
 
 //  ----------------------------------------------------------------------
