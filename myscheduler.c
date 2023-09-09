@@ -79,12 +79,12 @@ void read_sysconfig(char argv0[], char filename[])
                 }
                 if(dataTypeNumber == 2){
                     readSpeed[i-2] = atoi(stringTemp);
-                    printf("%i \n", readSpeed[i-2]);
+                    //printf("%i \n", readSpeed[i-2]);
                     //printf("%i", i-2);
                 }
                 if(dataTypeNumber == 3){
                     writeSpeed[i-2] = atoi(stringTemp);
-                    printf("%i \n", writeSpeed[i-2]);
+                    //printf("%i \n", writeSpeed[i-2]);
                     //printf("%i", i-2);
                 }
                 dataTypeNumber++;
