@@ -43,8 +43,8 @@ void read_sysconfig(char argv0[], char filename[])
 {
     //create 3 arrays to store the three types of data in the system config file
     char *deviceName[MAX_DEVICES];
-    char *readSpeed[MAX_DEVICES];
-    char *writeSpeed[MAX_DEVICES];
+    int readSpeed[MAX_DEVICES];
+    int writeSpeed[MAX_DEVICES];
     FILE *sysconfigFile;
 
     //open and read the system config file, getting each line as a string
@@ -78,13 +78,13 @@ void read_sysconfig(char argv0[], char filename[])
                     //printf("%i", i-2);
                 }
                 if(dataTypeNumber == 2){
-                    readSpeed[i-2] = stringTemp;
-                    //printf("%s \n", readSpeed[i-2]);
+                    readSpeed[i-2] = atoi(stringTemp);
+                    printf("%i \n", readSpeed[i-2]);
                     //printf("%i", i-2);
                 }
                 if(dataTypeNumber == 3){
-                    writeSpeed[i-2] = stringTemp;
-                    //printf("%s \n", writeSpeed[i-2]);
+                    writeSpeed[i-2] = atoi(stringTemp);
+                    printf("%i \n", writeSpeed[i-2]);
                     //printf("%i", i-2);
                 }
                 dataTypeNumber++;
@@ -117,19 +117,12 @@ void read_commands(char argv0[], char filename[])
         //printf("%s", placeHolder[i]);
     //}
 
-    for(int i = 0; i < line; i++) {
-        if(placeHolder[i] != "#"){
-            i++;
-            if(placeHolder[i] != " "){
-                i++;
-                char* stringTemp;
-                stringTemp = strtok(placeHolder[i], " ");
-                while(stringTemp != NULL){
-                    
-                    stringTemp = strtok(NULL, " ");
-                }
-            }
-        }
+    char* commandName;
+    int i = 0;
+    if(placeHolder[i] != "#"){
+        i++;
+        commandName = placeHolder[i]; 
+        
     }
 }
 
