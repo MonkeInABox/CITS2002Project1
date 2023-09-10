@@ -142,7 +142,7 @@ void read_commands(char argv0[], char filename[])
             }
             if(dataTypeNumber == 1){
                 function[i-2] = stringTemp;
-                if(stringTemp == "Sleep"){
+                if(strcmp(stringTemp, "sleep") == 0){
                     sleep = 1;
                 }
                 else{sleep = 0;}
