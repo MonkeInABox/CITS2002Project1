@@ -39,6 +39,9 @@
 
 #define CHAR_COMMENT                    '#'
 
+char placeHolderC[100][1000];
+char placeHolderS[MAX_DEVICES + 4][150];
+
 void read_sysconfig(char argv0[], char filename[])
 {
     //create 3 arrays to store the three types of data in the system config file
@@ -52,25 +55,24 @@ void read_sysconfig(char argv0[], char filename[])
     if(sysconfigFile == NULL){
         exit(EXIT_FAILURE);
     }
-    char placeHolder[MAX_DEVICES + 4][150];
     int line = 0;
     while(!feof(sysconfigFile) && !ferror(sysconfigFile)){
-        if(fgets(placeHolder[line], 150, sysconfigFile) != NULL){
+        if(fgets(placeHolderS[line], 150, sysconfigFile) != NULL){
             line++;
         }
     }
     fclose(sysconfigFile);
     //for(int i = 0; i < line; i++){
-        //printf("%s", placeHolder[i]);
+        //printf("%s", placeHolderS[i]);
     //}
     
     //split each line into the different types of data, putting the respective data in their respective arrays, 
     //using dataTypeNumber to keep track of what type of data is being accessed. 
     int dataTypeNumber = 0;
     for(int i = 1; i < 7; i++) {
-        if(placeHolder[i] != "#"){
+        if(placeHolderS[i] != "#"){
             char* stringTemp;
-            stringTemp = strtok(placeHolder[i], " ");
+            stringTemp = strtok(placeHolderS[i], " ");
             while(stringTemp != NULL){
                 if(dataTypeNumber == 1){
                     deviceName[i-2] = stringTemp;
@@ -99,22 +101,16 @@ void read_commands(char argv0[], char filename[])
 {
     FILE *commandsFile;
     commandsFile = fopen(filename, "r");
-    if(commandsFile == NULL){
-    
-    }
-    char* commands[MAX_COMMANDS];
-    char placeHolder[100][1000];
-
     int line = 0;
     while(!feof(commandsFile) && !ferror(commandsFile)){
-        if(fgets(placeHolder[line], 1000, commandsFile) != NULL){
+        if(fgets(placeHolderC[line], 1000, commandsFile) != NULL){
             line++;
         }
     }
     fclose(commandsFile);
 
     //for(int i = 0; i < line; i++){
-        //printf("%s", placeHolder[i]);
+        //printf("%s", placeHolderC[i]);
     //}
 
     char* commandName;
@@ -126,13 +122,13 @@ void read_commands(char argv0[], char filename[])
     int sleep = 0;
     int i = 0;
     int dataTypeNumber = 0;
-    if(placeHolder[i] != "#"){
+    if(placeHolderC[i] != "#"){
         i++;
-        commandName = placeHolder[i]; 
+        commandName = placeHolderC[i]; 
         printf("%s", commandName);
         i++;
         char* stringTemp;
-        stringTemp = strtok(placeHolder[i], " ");
+        stringTemp = strtok(placeHolderC[i], " ");
         i = 0;
         while(stringTemp != NULL){
             if(dataTypeNumber == 0){
