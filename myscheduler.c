@@ -151,7 +151,7 @@ void read_commands(char argv0[], char filename[])
                 printf("%i \n", sleep);
             }
             if(dataTypeNumber == 2){
-                if(sleep = 1){
+                if(sleep == 1){
                     sleepTime[i-2] = atoi(stringTemp);
                 }
                 else{position[i-2] = stringTemp;}
