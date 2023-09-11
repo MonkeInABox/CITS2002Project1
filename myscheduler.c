@@ -49,8 +49,12 @@ char runningQ[MAX_COMMANDS][21];
 char blockedQ[MAX_COMMANDS][21];
 int totalTime = 0;
 int CPUtime = 0;
-char commandName[1];
-
+char commandName[MAX_COMMAND_NAME];
+int waitTime[100];
+char* function[100];
+char* position[100];
+int sleepTime[100];
+int amountOfB[100];
 
 void read_sysconfig(char argv0[], char filename[])
 {
@@ -118,11 +122,11 @@ void read_commands(char argv0[], char filename[])
     //for(int i = 0; i < line; i++){
         //printf("%s", placeHolderC[i]);
     //}
-    int waitTime[100];
-    char* function[100];
-    char* position[100];
-    int sleepTime[100];
-    int amountOfB[100];
+    //int waitTime[100];
+    //char* function[100];
+    //char* position[100];
+    //int sleepTime[100];
+    //int amountOfB[100];
     int sleep = 0;
     int i = 0;
     int dataTypeNumber = 0;
