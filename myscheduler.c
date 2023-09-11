@@ -239,9 +239,9 @@ void pushBlocked(char commandName[]){
             break;
         }
     }
-    printf("%i", fromSleep);
+    //printf("%i", fromSleep);
     if(fromSleep == 1){
-        printf("%i", sleepTime);
+        //printf("%i", sleepTime);
         totalTime += sleepTime;
         fromSleep = 0;
     }
