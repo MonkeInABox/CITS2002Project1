@@ -265,25 +265,33 @@ void pushRunning(char commandName[]){
             break;
         }
     }
+    while(waitTime[commandIndex] != 0){
+        if(waitTime[commandIndex] <= DEFAULT_TIME_QUANTUM){
+            totalTime += waitTime[commandIndex];
+            waitTime[commandIndex] = 0;
+            break;
+        }
+        totalTime += DEFAULT_TIME_QUANTUM;
+        waitTime[commandIndex] -= DEFAULT_TIME_QUANTUM;
+        pushReadyFromRunning(commandIndex);
+    }
     if(sleepTime != 0){
         fromSleep = 1;
         pushBlocked(commandName);
     }
     else{
         int devicePos = 0;
-        if(strcmp(function[0], "write")){
+        if(strcmp(function[0], "write") == 0){
             int time = amountOfB[0] / writeSpeed[devicePos];
             totalTime += time;
         }
-        if(strcmp(function[0], "read")){
+        if(strcmp(function[0], "read") == 0){
             int time = amountOfB[0] / readSpeed[devicePos];
             totalTime += time;
         }
     }
     totalTime += 10;
 }
-
-
 
 void pushReadyFromNew(char commandName[]){
     for(int i = 0; i < MAX_COMMANDS; i++){
