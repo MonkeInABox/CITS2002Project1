@@ -267,6 +267,16 @@ void pushRunning(int commandIndex){
             break;
         }
     }
+    while(waitTime[commandIndex] != 0){
+        if(waitTime[commandIndex] <= DEFAULT_TIME_QUANTUM){
+            totalTime += waitTime[commandIndex];
+            waitTime[commandIndex] = 0;
+            break;
+        }
+        totalTime += DEFAULT_TIME_QUANTUM;
+        waitTime[commandIndex] -= DEFAULT_TIME_QUANTUM;
+        pushReadyFromRunning(commandIndex);
+    }
     if(sleepTime != 0){
         fromSleep = 1;
         pushBlocked(commandIndex);
