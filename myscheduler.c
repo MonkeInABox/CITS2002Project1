@@ -56,6 +56,7 @@ char* position[100];
 int sleepTime = 0;
 int amountOfB[100];
 int fromSleep = 0;
+int commandExecutingIndex;
 
 void read_sysconfig(char argv0[], char filename[])
 {
@@ -186,9 +187,9 @@ void read_commands(char argv0[], char filename[])
 
 //  ----------------------------------------------------------------------
 
-void pushReadyFromBlocked(char commandName[]){
+void pushReadyFromBlocked(int commandIndex){
     for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(blockedQ[i], commandName) == 0){
+        if(strcmp(blockedQ[i], function[commandIndex]) == 0){
             while(strcmp(blockedQ[i], "\0") != 0){
                 strcpy(blockedQ[i], blockedQ[i+1]);
                 i++;
@@ -198,14 +199,14 @@ void pushReadyFromBlocked(char commandName[]){
     }
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], "\0") == 0){
-            strcpy(readyQ[i], commandName);
+            strcpy(readyQ[i], function[commandIndex]);
             break;
         }
     }
     totalTime += 10;
 }
 
-void pushReadyFromRunning(char commandName[]){
+void pushReadyFromRunning(int commandIndex){
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(runningQ[i], commandName) == 0){
             while(strcmp(runningQ[i], "\0") != 0){
@@ -224,7 +225,7 @@ void pushReadyFromRunning(char commandName[]){
     totalTime += 10;
 }
 
-void pushBlocked(char commandName[]){
+void pushBlocked(int commandIndex){
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(runningQ[i], commandName) == 0){
             while(strcmp(runningQ[i], "\0") != 0){
@@ -245,13 +246,14 @@ void pushBlocked(char commandName[]){
         //printf("%i", sleepTime);
         totalTime += sleepTime;
         fromSleep = 0;
+        //increase index
     }
     totalTime += 10;
 }
 
-void pushRunning(char commandName[]){
+void pushRunning(int commandIndex){
     for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(readyQ[i], commandName) == 0){
+        if(strcmp(readyQ[i], function[commandIndex]) == 0){
             while(strcmp(readyQ[i], "\0") != 0){
                 strcpy(readyQ[i], readyQ[i+1]);
                 i++;
@@ -261,45 +263,47 @@ void pushRunning(char commandName[]){
     }
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(runningQ[i], "\0") == 0){
-            strcpy(runningQ[i], commandName);
+            strcpy(runningQ[i], function[commandIndex]);
             break;
         }
     }
     if(sleepTime != 0){
         fromSleep = 1;
-        pushBlocked(commandName);
+        pushBlocked(commandIndex);
     }
     else{
-        int devicePos = 0;
-        if(strcmp(function[0], "write")){
-            int time = amountOfB[0] / writeSpeed[devicePos];
+        int deviceIndex;
+        for(int i = 0; deviceName[i] != NULL; i++){
+            if(strcmp(deviceName[i], position[commandIndex]) == 0){
+                deviceIndex = i;
+            }
+        }
+        if(strcmp(function[commandIndex], "write")){
+            int time = amountOfB[commandIndex] / writeSpeed[deviceIndex];
             totalTime += time;
         }
-        if(strcmp(function[0], "read")){
-            int time = amountOfB[0] / readSpeed[devicePos];
+        if(strcmp(function[commandIndex], "read")){
+            int time = amountOfB[commandIndex] / readSpeed[deviceIndex];
             totalTime += time;
         }
     }
     totalTime += 10;
 }
 
-
-
-void pushReadyFromNew(char commandName[]){
+void pushReadyFromNew(int commandIndex){
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], "\0") == 0){
-            strcpy(readyQ[i], commandName);
+            strcpy(readyQ[i], function[commandIndex]);
             break;
         }
     }
-    pushRunning(commandName);
+    pushRunning(commandIndex);
 }
 
 int execute_commands()
 {
-    int commandIndex;
-    
-    pushReadyFromNew(commandName);
+    commandExecutingIndex = 0;
+    pushReadyFromNew(commandExecutingIndex);
     //get total time
     //calculate cpu percentage
     //pushRunning(commandName);

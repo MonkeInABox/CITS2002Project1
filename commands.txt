@@ -1,11 +1,4 @@
 #
-copyfile
-    200usecs   read    hd       48000B
-    300usecs   write   hd       48000B
-    600usecs   read    hd       21000B
-    700usecs   write   hd       21000B
-    1000usecs  exit
-#
 shortsleep
     10usecs    sleep   1000000usecs
     50usecs    exit
@@ -13,6 +6,13 @@ shortsleep
 longsleep
     10usecs    sleep   5000000usecs
     50usecs    exit
+#
+copyfile
+    200usecs   read    hd       48000B
+    300usecs   write   hd       48000B
+    600usecs   read    hd       21000B
+    700usecs   write   hd       21000B
+    1000usecs  exit
 #
 cal
     80usecs    write   terminal 2000B
