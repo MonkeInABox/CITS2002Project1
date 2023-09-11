@@ -29,7 +29,6 @@
 //  (SO YOU CAN SAFELY USE 'STANDARD' 32-BIT ints TO STORE TIMES).
 
 #define DEFAULT_TIME_QUANTUM            100
-
 #define TIME_CONTEXT_SWITCH             5
 #define TIME_CORE_STATE_TRANSITIONS     10
 #define TIME_ACQUIRE_BUS                20
@@ -57,6 +56,7 @@ int sleepTime = 0;
 int amountOfB[100];
 int fromSleep = 0;
 int commandExecutingIndex;
+int where = 0;
 
 void read_sysconfig(char argv0[], char filename[])
 {
@@ -202,7 +202,10 @@ void pushReadyFromBlocked(int commandIndex){
             break;
         }
     }
-    totalTime += 10;
+    if(strcmp(readyQ[0], function[commandIndex]) == 0){
+        where = 1;
+    }
+    totalTime += TIME_CORE_STATE_TRANSITIONS;
 }
 
 void pushReadyFromRunning(int commandIndex){
@@ -221,12 +224,12 @@ void pushReadyFromRunning(int commandIndex){
             break;
         }
     }
-    totalTime += 10;
+    totalTime += TIME_CORE_STATE_TRANSITIONS;
 }
 
 void pushBlocked(int commandIndex){
     for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(runningQ[i], commandName) == 0){
+        if(strcmp(runningQ[i], function[commandIndex]) == 0){
             while(strcmp(runningQ[i], "\0") != 0){
                 strcpy(runningQ[i], runningQ[i+1]);
                 i++;
@@ -236,7 +239,7 @@ void pushBlocked(int commandIndex){
     }
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(blockedQ[i], "\0") == 0){
-            strcpy(blockedQ[i], commandName);
+            strcpy(blockedQ[i], function[commandIndex]);
             break;
         }
     }
@@ -244,9 +247,9 @@ void pushBlocked(int commandIndex){
     if(fromSleep == 1){
         //printf("%i", sleepTime);
         totalTime += sleepTime;
-        fromSleep = 0;
     }
-    totalTime += 10;
+    totalTime += TIME_CORE_STATE_TRANSITIONS;
+    where = 3;
 }
 
 void pushRunning(int commandIndex){
@@ -275,9 +278,15 @@ void pushRunning(int commandIndex){
         waitTime[commandIndex] -= DEFAULT_TIME_QUANTUM;
         pushReadyFromRunning(commandIndex);
     }
-    if(sleepTime != 0){
+    if(sleepTime != 0 && fromSleep == 0){
         fromSleep = 1;
-        pushBlocked(commandIndex);
+        totalTime += sleepTime;
+        totalTime += TIME_CORE_STATE_TRANSITIONS;
+        where = 2;
+    }
+    if(sleepTime != 0 && fromSleep == 1){
+        fromSleep = 0;
+        where = -1;
     }
     else{
         int deviceIndex;
@@ -295,26 +304,38 @@ void pushRunning(int commandIndex){
             totalTime += time;
         }
     }
-    totalTime += 10;
+    totalTime += TIME_CORE_STATE_TRANSITIONS;
 }
 
-void pushReadyFromNew(int commandIndex){
+int pushReadyFromNew(int commandIndex){
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], "\0") == 0){
             strcpy(readyQ[i], function[commandIndex]);
             break;
         }
     }
-    pushRunning(commandIndex);
+    totalTime += TIME_CORE_STATE_TRANSITIONS;
+    return 1;
 }
 
 int execute_commands()
 {
     commandExecutingIndex = 0;
-    pushReadyFromNew(commandExecutingIndex);
+    while(where != -1){
+        int where = pushReadyFromNew(commandExecutingIndex);
+        if(where == 1){
+            pushRunning(commandExecutingIndex);
+        }
+        if(where == 2){
+            pushBlocked(commandExecutingIndex);
+        }
+        if(where == 3){
+            pushReadyFromBlocked(commandExecutingIndex);
+        }
+    }
     //get total time
     //calculate cpu percentage
-    //pushRunning(commandName);
+    //pushRunning(commandName)
 }
 
 //  ----------------------------------------------------------------------
