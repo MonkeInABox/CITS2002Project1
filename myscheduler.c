@@ -39,38 +39,43 @@
 
 #define CHAR_COMMENT                    '#'
 
+char placeHolderC[100][1000];
+char placeHolderS[MAX_DEVICES + 4][150];
+char *deviceName[MAX_DEVICES];
+int readSpeed[MAX_DEVICES];
+int writeSpeed[MAX_DEVICES];
+char readyQ[MAX_COMMANDS][21];
+char runningQ[MAX_COMMANDS][21];
+char blockedQ[MAX_COMMANDS][21];
+int totalTime = 0;
+int CPUtime = 0;
 void read_sysconfig(char argv0[], char filename[])
 {
-    //create 3 arrays to store the three types of data in the system config file
-    char *deviceName[MAX_DEVICES];
-    int readSpeed[MAX_DEVICES];
-    int writeSpeed[MAX_DEVICES];
-    FILE *sysconfigFile;
+FILE *sysconfigFile;
 
     //open and read the system config file, getting each line as a string
     sysconfigFile = fopen(filename, "r");
     if(sysconfigFile == NULL){
         exit(EXIT_FAILURE);
     }
-    char placeHolder[MAX_DEVICES + 4][150];
     int line = 0;
     while(!feof(sysconfigFile) && !ferror(sysconfigFile)){
-        if(fgets(placeHolder[line], 150, sysconfigFile) != NULL){
+        if(fgets(placeHolderS[line], 150, sysconfigFile) != NULL){
             line++;
         }
     }
     fclose(sysconfigFile);
     //for(int i = 0; i < line; i++){
-        //printf("%s", placeHolder[i]);
+        //printf("%s", placeHolderS[i]);
     //}
     
     //split each line into the different types of data, putting the respective data in their respective arrays, 
     //using dataTypeNumber to keep track of what type of data is being accessed. 
     int dataTypeNumber = 0;
     for(int i = 1; i < 7; i++) {
-        if(placeHolder[i] != "#"){
+        if(placeHolderS[i] != "#"){
             char* stringTemp;
-            stringTemp = strtok(placeHolder[i], " ");
+            stringTemp = strtok(placeHolderS[i], " ");
             while(stringTemp != NULL){
                 if(dataTypeNumber == 1){
                     deviceName[i-2] = stringTemp;
@@ -99,24 +104,109 @@ void read_commands(char argv0[], char filename[])
 {
     FILE *commandsFile;
     commandsFile = fopen(filename, "r");
-    if(commandsFile == NULL){
-        exit(EXIT_FAILURE);
-    }
-    char* commands[MAX_COMMANDS];
-    char placeHolder[100][1000];
-
     int line = 0;
     while(!feof(commandsFile) && !ferror(commandsFile)){
-        if(fgets(placeHolder[line], 1000, commandsFile) != NULL){
+        if(fgets(placeHolderC[line], 1000, commandsFile) != NULL){
             line++;
         }
     }
     fclose(commandsFile);
 
     //for(int i = 0; i < line; i++){
-        //printf("%s", placeHolder[i]);
+        //printf("%s", placeHolderC[i]);
     //}
+}
 
+
+
+//  ----------------------------------------------------------------------
+void pushReadyFromNew(char commandName[]){
+    for(int i = 0; i < MAX_COMMANDS; i++){
+        if(strcmp(readyQ[i], "\0") == 0){
+            strcpy(readyQ[i], commandName);
+            break;
+        }
+    }
+}
+
+void pushReadyFromBlocked(char commandName[]){
+    for(int i = 0; i < MAX_COMMANDS; i++){
+        if(strcmp(blockedQ[i], commandName) == 0){
+            while(strcmp(blockedQ[i], "\0") != 0){
+                strcpy(blockedQ[i], blockedQ[i+1]);
+                i++;
+            }
+            break;
+        }
+    }
+    for(int i = 0; i < MAX_COMMANDS; i++){
+        if(strcmp(readyQ[i], "\0") == 0){
+            strcpy(readyQ[i], commandName);
+            break;
+        }
+    }
+    totalTime += 10;
+}
+
+void pushReadyFromRunning(char commandName[]){
+    for(int i = 0; i < MAX_COMMANDS; i++){
+        if(strcmp(runningQ[i], commandName) == 0){
+            while(strcmp(runningQ[i], "\0") != 0){
+                strcpy(runningQ[i], runningQ[i+1]);
+                i++;
+            }
+            break;
+        }
+    }
+    for(int i = 0; i < MAX_COMMANDS; i++){
+        if(strcmp(readyQ[i], "\0") == 0){
+            strcpy(readyQ[i], commandName);
+            break;
+        }
+    }
+    totalTime += 10;
+}
+
+void pushRunning(char commandName[]){
+    for(int i = 0; i < MAX_COMMANDS; i++){
+        if(strcmp(readyQ[i], commandName) == 0){
+            while(strcmp(readyQ[i], "\0") != 0){
+                strcpy(readyQ[i], readyQ[i+1]);
+                i++;
+            }
+            break;
+        }
+    }
+    for(int i = 0; i < MAX_COMMANDS; i++){
+        if(strcmp(runningQ[i], "\0") == 0){
+            strcpy(runningQ[i], commandName);
+            break;
+        }
+    }
+    totalTime += 10;
+}
+
+void pushBlocked(char commandName[]){
+    for(int i = 0; i < MAX_COMMANDS; i++){
+        if(strcmp(runningQ[i], commandName) == 0){
+            while(strcmp(runningQ[i], "\0") != 0){
+                strcpy(runningQ[i], runningQ[i+1]);
+                i++;
+            }
+            break;
+        }
+    }
+    for(int i = 0; i < MAX_COMMANDS; i++){
+        if(strcmp(blockedQ[i], "\0") == 0){
+            strcpy(blockedQ[i], commandName);
+            break;
+        }
+    }
+    totalTime += 10;
+}
+
+int execute_commands()
+{
     char* commandName;
     int waitTime[100];
     char* function[100];
@@ -126,59 +216,57 @@ void read_commands(char argv0[], char filename[])
     int sleep = 0;
     int i = 0;
     int dataTypeNumber = 0;
-    if(placeHolder[i] != "#"){
+    int commandNum = 0;
+    //while(placeHolderC[i] != NULL){
+        if(strcmp(placeHolderC[i], "#") == 13){
+        commandNum++;
         i++;
-        commandName = placeHolder[i]; 
-        printf("%s", commandName);
+        commandName = placeHolderC[i];
+        pushReadyFromNew(commandName);
+        printf("readyQ(after line226): %s", readyQ[0]);
+        pushRunning(commandName);
+        printf("readyQ(after line 228): %s \n", readyQ[0]);
+        printf("runningQ: %s", runningQ[0]);
         i++;
         char* stringTemp;
-        stringTemp = strtok(placeHolder[i], " ");
-        i = 0;
+        stringTemp = strtok(placeHolderC[i], " ");
         while(stringTemp != NULL){
             if(dataTypeNumber == 0){
-                waitTime[i-2] = atoi(stringTemp);
-                printf("%i \n", waitTime[i-2]);
-                //printf("%i", i-2);
+                waitTime[commandNum-1] = atoi(stringTemp);
+                //printf("%i \n", waitTime[commandNum-1]);
+                //printf("%i", commandNum-1);
             }
             if(dataTypeNumber == 1){
-                function[i-2] = stringTemp;
+                function[commandNum-1] = stringTemp;
                 if(strcmp(stringTemp, "sleep") == 0){
                     sleep = 1;
                 }
                 else{sleep = 0;}
-                printf("%s \n", function[i-2]);
+                //printf("%s \n", function[i-2]);
                 //printf("%i \n", i-2);
-                printf("%i \n", sleep);
+                //printf("%i \n", sleep);
             }
             if(dataTypeNumber == 2){
                 if(sleep == 1){
                     sleepTime[i-2] = atoi(stringTemp);
                 }
                 else{position[i-2] = stringTemp;}
-                printf("%s \n", position[i-2]);
+                //printf("%s \n", position[i-2]);
                 //printf("%i \n", i-2);
-                printf("%i \n", sleepTime[i-2]);
+                //printf("%i \n", sleepTime[i-2]);
             }
             if(dataTypeNumber == 3){
                 amountOfB[i-2] = atoi(stringTemp);
-                printf("%i \n", amountOfB[i-2]);
+                //printf("%i \n", amountOfB[i-2]);
                 //printf("%i \n", i-2);
             }
             dataTypeNumber++;
             stringTemp = strtok(NULL, " ");
-        }
+            }
         dataTypeNumber = 0;
+        }  
     }
-}
-
-
-
-//  ----------------------------------------------------------------------
-
-int execute_commands()
-{
-
-}
+//}
 
 //  ----------------------------------------------------------------------
 
@@ -200,7 +288,7 @@ int main(int argc, char *argv[])
     execute_commands();
 
 //  PRINT THE PROGRAM'S RESULTS
-    printf("measurements  %i  %i\n", 0, 0);
+    printf("measurements  %i  %i\n", totalTime, 0);
 
     exit(EXIT_SUCCESS);
 }
