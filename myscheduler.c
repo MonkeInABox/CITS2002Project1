@@ -49,6 +49,9 @@ char runningQ[MAX_COMMANDS][21];
 char blockedQ[MAX_COMMANDS][21];
 int totalTime = 0;
 int CPUtime = 0;
+char *commandName;
+
+
 void read_sysconfig(char argv0[], char filename[])
 {
 FILE *sysconfigFile;
@@ -115,6 +118,60 @@ void read_commands(char argv0[], char filename[])
     //for(int i = 0; i < line; i++){
         //printf("%s", placeHolderC[i]);
     //}
+
+    char* commandName;
+    int waitTime[100];
+    char* function[100];
+    char* position[100];
+    int sleepTime[100];
+    int amountOfB[100];
+    int sleep = 0;
+    int i = 0;
+    int dataTypeNumber = 0;
+    int commandNum = 0;
+    //while(placeHolderC[i] != NULL){
+    if(strcmp(placeHolderC[i], "#") == 13){
+        commandNum++;
+        i++;
+        commandName = placeHolderC[i];
+        i++;
+        char* stringTemp;
+        stringTemp = strtok(placeHolderC[i], " ");
+        while(stringTemp != NULL){
+            if(dataTypeNumber == 0){
+                waitTime[commandNum-1] = atoi(stringTemp);
+                //printf("%i \n", waitTime[commandNum-1]);
+                //printf("%i", commandNum-1);
+            }
+            if(dataTypeNumber == 1){
+                function[commandNum-1] = stringTemp;
+                if(strcmp(stringTemp, "sleep") == 0){
+                    sleep = 1;
+                }
+                else{sleep = 0;}
+                //printf("%s \n", function[i-2]);
+                //printf("%i \n", i-2);
+                //printf("%i \n", sleep);
+            }
+            if(dataTypeNumber == 2){
+                if(sleep == 1){
+                    sleepTime[i-2] = atoi(stringTemp);
+                }
+                else{position[i-2] = stringTemp;}
+                //printf("%s \n", position[i-2]);
+                //printf("%i \n", i-2);
+                //printf("%i \n", sleepTime[i-2]);
+            }
+            if(dataTypeNumber == 3){
+                amountOfB[i-2] = atoi(stringTemp);
+                //printf("%i \n", amountOfB[i-2]);
+                //printf("%i \n", i-2);
+            }
+            dataTypeNumber++;
+            stringTemp = strtok(NULL, " ");
+            }
+        dataTypeNumber = 0;
+    }  
 }
 
 
@@ -207,66 +264,9 @@ void pushBlocked(char commandName[]){
 
 int execute_commands()
 {
-    char* commandName;
-    int waitTime[100];
-    char* function[100];
-    char* position[100];
-    int sleepTime[100];
-    int amountOfB[100];
-    int sleep = 0;
-    int i = 0;
-    int dataTypeNumber = 0;
-    int commandNum = 0;
-    //while(placeHolderC[i] != NULL){
-        if(strcmp(placeHolderC[i], "#") == 13){
-        commandNum++;
-        i++;
-        commandName = placeHolderC[i];
-        pushReadyFromNew(commandName);
-        printf("readyQ(after line226): %s", readyQ[0]);
-        pushRunning(commandName);
-        printf("readyQ(after line 228): %s \n", readyQ[0]);
-        printf("runningQ: %s", runningQ[0]);
-        i++;
-        char* stringTemp;
-        stringTemp = strtok(placeHolderC[i], " ");
-        while(stringTemp != NULL){
-            if(dataTypeNumber == 0){
-                waitTime[commandNum-1] = atoi(stringTemp);
-                //printf("%i \n", waitTime[commandNum-1]);
-                //printf("%i", commandNum-1);
-            }
-            if(dataTypeNumber == 1){
-                function[commandNum-1] = stringTemp;
-                if(strcmp(stringTemp, "sleep") == 0){
-                    sleep = 1;
-                }
-                else{sleep = 0;}
-                //printf("%s \n", function[i-2]);
-                //printf("%i \n", i-2);
-                //printf("%i \n", sleep);
-            }
-            if(dataTypeNumber == 2){
-                if(sleep == 1){
-                    sleepTime[i-2] = atoi(stringTemp);
-                }
-                else{position[i-2] = stringTemp;}
-                //printf("%s \n", position[i-2]);
-                //printf("%i \n", i-2);
-                //printf("%i \n", sleepTime[i-2]);
-            }
-            if(dataTypeNumber == 3){
-                amountOfB[i-2] = atoi(stringTemp);
-                //printf("%i \n", amountOfB[i-2]);
-                //printf("%i \n", i-2);
-            }
-            dataTypeNumber++;
-            stringTemp = strtok(NULL, " ");
-            }
-        dataTypeNumber = 0;
-        }  
-    }
-//}
+    pushReadyFromNew(commandName);
+    pushRunning(commandName);
+}
 
 //  ----------------------------------------------------------------------
 
