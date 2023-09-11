@@ -269,19 +269,13 @@ void pushRunning(char commandName[]){
         pushBlocked(commandName);
     }
     else{
-        int devicePos;
-        for(int i = 0; i != NULL; i++){
-            if(strcmp(position[0], deviceName[i])){
-                devicePos = i;
-                break;
-            }
-        }
+        int devicePos = 0;
         if(strcmp(function[0], "write")){
             int time = amountOfB[0] / writeSpeed[devicePos];
             totalTime += time;
         }
-        if(strcmp(function[i], "read")){
-            int time = amountOfB[i] / readSpeed[devicePos];
+        if(strcmp(function[0], "read")){
+            int time = amountOfB[0] / readSpeed[devicePos];
             totalTime += time;
         }
     }
@@ -302,6 +296,8 @@ void pushReadyFromNew(char commandName[]){
 
 int execute_commands()
 {
+    int commandIndex;
+    
     pushReadyFromNew(commandName);
     //get total time
     //calculate cpu percentage
