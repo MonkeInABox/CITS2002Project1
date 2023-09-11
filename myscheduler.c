@@ -176,14 +176,6 @@ void read_commands(char argv0[], char filename[])
 
 
 //  ----------------------------------------------------------------------
-void pushReadyFromNew(char commandName[]){
-    for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(readyQ[i], "\0") == 0){
-            strcpy(readyQ[i], commandName);
-            break;
-        }
-    }
-}
 
 void pushReadyFromBlocked(char commandName[]){
     for(int i = 0; i < MAX_COMMANDS; i++){
@@ -239,6 +231,7 @@ void pushRunning(char commandName[]){
             break;
         }
     }
+    
     totalTime += 10;
 }
 
@@ -261,10 +254,22 @@ void pushBlocked(char commandName[]){
     totalTime += 10;
 }
 
+void pushReadyFromNew(char commandName[]){
+    for(int i = 0; i < MAX_COMMANDS; i++){
+        if(strcmp(readyQ[i], "\0") == 0){
+            strcpy(readyQ[i], commandName);
+            break;
+        }
+    }
+    pushRunning(commandName);
+}
+
 int execute_commands()
 {
     pushReadyFromNew(commandName);
-    pushRunning(commandName);
+    //get total time
+    //calculate cpu percentage
+    //pushRunning(commandName);
 }
 
 //  ----------------------------------------------------------------------
