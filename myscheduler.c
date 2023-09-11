@@ -268,6 +268,23 @@ void pushRunning(char commandName[]){
         fromSleep = 1;
         pushBlocked(commandName);
     }
+    else{
+        int devicePos;
+        for(int i = 0; i != NULL; i++){
+            if(strcmp(position[0], deviceName[i])){
+                devicePos = i;
+                break;
+            }
+        }
+        if(strcmp(function[0], "write")){
+            int time = amountOfB[0] / writeSpeed[devicePos];
+            totalTime += time;
+        }
+        if(strcmp(function[i], "read")){
+            int time = amountOfB[i] / readSpeed[devicePos];
+            totalTime += time;
+        }
+    }
     totalTime += 10;
 }
 
