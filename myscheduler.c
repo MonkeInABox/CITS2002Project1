@@ -49,7 +49,7 @@ char runningQ[MAX_COMMANDS][21];
 char blockedQ[MAX_COMMANDS][21];
 int totalTime = 0;
 int CPUtime = 0;
-char commandName[];
+char commandName[1];
 
 
 void read_sysconfig(char argv0[], char filename[])
@@ -131,7 +131,7 @@ void read_commands(char argv0[], char filename[])
     if(strcmp(placeHolderC[i], "#") == 13){
         commandNum++;
         i++;
-        commandName = placeHolderC[i];
+        strcpy(commandName, placeHolderC[i]);
         i++;
         char* stringTemp;
         stringTemp = strtok(placeHolderC[i], " ");
@@ -170,6 +170,7 @@ void read_commands(char argv0[], char filename[])
             }
         dataTypeNumber = 0;
     }  
+    printf("%s", commandName);
 }
 
 
