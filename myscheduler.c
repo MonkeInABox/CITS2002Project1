@@ -77,7 +77,6 @@ FILE *sysconfigFile;
     //for(int i = 0; i < line; i++){
         //printf("%s", placeHolderS[i]);
     //}
-    
     //split each line into the different types of data, putting the respective data in their respective arrays, 
     //using dataTypeNumber to keep track of what type of data is being accessed. 
     int dataTypeNumber = 0;
@@ -246,7 +245,6 @@ void pushBlocked(int commandIndex){
         //printf("%i", sleepTime);
         totalTime += sleepTime;
         fromSleep = 0;
-        //increase index
     }
     totalTime += 10;
 }
