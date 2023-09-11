@@ -208,7 +208,7 @@ void pushReadyFromBlocked(int commandIndex){
 
 void pushReadyFromRunning(int commandIndex){
     for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(runningQ[i], commandName) == 0){
+        if(strcmp(runningQ[i], function[commandIndex]) == 0){
             while(strcmp(runningQ[i], "\0") != 0){
                 strcpy(runningQ[i], runningQ[i+1]);
                 i++;
@@ -218,7 +218,7 @@ void pushReadyFromRunning(int commandIndex){
     }
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], "\0") == 0){
-            strcpy(readyQ[i], commandName);
+            strcpy(readyQ[i], function[commandIndex]);
             break;
         }
     }
