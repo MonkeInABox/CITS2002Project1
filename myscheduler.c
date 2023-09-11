@@ -141,7 +141,12 @@ void read_commands(char argv0[], char filename[])
             stringTemp = strtok(placeHolderC[i], " ");
             while(stringTemp != NULL){
                 if(dataTypeNumber == 0){
-                    waitTime[i-2] = atoi(stringTemp);
+                    if(i == 2){
+                        waitTime[i-2] = atoi(stringTemp);
+                    }
+                    else {
+                        waitTime[i-2] = atoi(stringTemp) - waitTime[i-3];
+                    }
                     //printf("%i \n", waitTime[commandNum-1]);
                     //printf("%i", commandNum-1);
                 }
