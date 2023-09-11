@@ -53,8 +53,9 @@ char commandName[MAX_COMMAND_NAME];
 int waitTime[100];
 char* function[100];
 char* position[100];
-int sleepTime[100];
+int sleepTime = 0;
 int amountOfB[100];
+int fromSleep = 0;
 
 void read_sysconfig(char argv0[], char filename[])
 {
@@ -157,7 +158,9 @@ void read_commands(char argv0[], char filename[])
             }
             if(dataTypeNumber == 2){
                 if(sleep == 1){
-                    sleepTime[i-2] = atoi(stringTemp);
+                    sleepTime = atoi(stringTemp);
+                    //printf("%i", atoi(stringTemp));
+                    //printf("%i", sleepTime);
                 }
                 else{position[i-2] = stringTemp;}
                 //printf("%s \n", position[i-2]);
@@ -175,6 +178,7 @@ void read_commands(char argv0[], char filename[])
         dataTypeNumber = 0;
     }  
     printf("%s", commandName);
+    //printf("%i", sleepTime);
 }
 
 
@@ -219,26 +223,6 @@ void pushReadyFromRunning(char commandName[]){
     totalTime += 10;
 }
 
-void pushRunning(char commandName[]){
-    for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(readyQ[i], commandName) == 0){
-            while(strcmp(readyQ[i], "\0") != 0){
-                strcpy(readyQ[i], readyQ[i+1]);
-                i++;
-            }
-            break;
-        }
-    }
-    for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(runningQ[i], "\0") == 0){
-            strcpy(runningQ[i], commandName);
-            break;
-        }
-    }
-    
-    totalTime += 10;
-}
-
 void pushBlocked(char commandName[]){
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(runningQ[i], commandName) == 0){
@@ -255,8 +239,39 @@ void pushBlocked(char commandName[]){
             break;
         }
     }
+    printf("%i", fromSleep);
+    if(fromSleep == 1){
+        printf("%i", sleepTime);
+        totalTime += sleepTime;
+        fromSleep = 0;
+    }
     totalTime += 10;
 }
+
+void pushRunning(char commandName[]){
+    for(int i = 0; i < MAX_COMMANDS; i++){
+        if(strcmp(readyQ[i], commandName) == 0){
+            while(strcmp(readyQ[i], "\0") != 0){
+                strcpy(readyQ[i], readyQ[i+1]);
+                i++;
+            }
+            break;
+        }
+    }
+    for(int i = 0; i < MAX_COMMANDS; i++){
+        if(strcmp(runningQ[i], "\0") == 0){
+            strcpy(runningQ[i], commandName);
+            break;
+        }
+    }
+    if(sleepTime != 0){
+        fromSleep = 1;
+        pushBlocked(commandName);
+    }
+    totalTime += 10;
+}
+
+
 
 void pushReadyFromNew(char commandName[]){
     for(int i = 0; i < MAX_COMMANDS; i++){
