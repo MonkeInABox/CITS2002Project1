@@ -283,6 +283,10 @@ void pushRunning(int commandIndex){
         waitTime[commandIndex] -= DEFAULT_TIME_QUANTUM;
         pushReadyFromRunning(commandIndex);
     }
+    if(function[commandIndex] == "exit"){
+        totalTime += waitTime[commandIndex];
+        where = -1;
+    }
     if(sleepTime != 0 && fromSleep == 0){
         fromSleep = 1;
         totalTime += sleepTime;
@@ -320,6 +324,7 @@ int pushReadyFromNew(int commandIndex){
         }
     }
     totalTime += TIME_CORE_STATE_TRANSITIONS;
+
     return 1;
 }
 
@@ -340,7 +345,6 @@ int execute_commands()
     }
     //get total time
     //calculate cpu percentage
-    //pushRunning(commandName)
 }
 
 //  ----------------------------------------------------------------------
