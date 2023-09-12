@@ -271,6 +271,7 @@ void pushRunning(int commandIndex){
             break;
         }
     }
+    printf("%i", commandIndex);
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(runningQ[i], "\0") == 0){
             strcpy(runningQ[i], function[commandIndex]);
@@ -287,11 +288,6 @@ void pushRunning(int commandIndex){
         waitTime[commandIndex] -= DEFAULT_TIME_QUANTUM;
         pushReadyFromRunning(commandIndex);
     }
-    if(function[commandIndex] == "exit"){
-        totalTime += waitTime[commandIndex];
-        where = -1;
-        done = 1;
-    }
     if(sleepTime != 0 && fromSleep == 0){
         fromSleep = 1;
         totalTime += sleepTime;
@@ -300,20 +296,21 @@ void pushRunning(int commandIndex){
     }
     if(sleepTime != 0 && fromSleep == 1){
         fromSleep = 0;
+        done = 1;
         where = -1;
     }
     else{
-        int deviceIndex;
-        for(int i = 0; deviceName[i] != NULL; i++){
+        int deviceIndex = 0;
+        for(int i = 1; deviceName[i] != NULL; i++){
             if(strcmp(deviceName[i], position[commandIndex]) == 0){
                 deviceIndex = i;
             }
         }
-        if(strcmp(function[commandIndex], "write")){
+        if(strcmp(function[commandIndex], "write") == 0){
             int time = amountOfB[commandIndex] / writeSpeed[deviceIndex];
             totalTime += time;
         }
-        if(strcmp(function[commandIndex], "read")){
+        if(strcmp(function[commandIndex], "read") == 0){
             int time = amountOfB[commandIndex] / readSpeed[deviceIndex];
             totalTime += time;
         }
@@ -329,12 +326,20 @@ int pushReadyFromNew(int commandIndex){
         }
     }
     totalTime += TIME_CORE_STATE_TRANSITIONS;
+    printf("%s", function[commandIndex]);
+    if(function[commandIndex] == "exit"){
+        printf("%i", commandExecutingIndex);
+        totalTime += waitTime[commandIndex];
+        where = -1;
+        done = 1;
+    }
     return 1;
 }
 
 int execute_commands()
 {
-    while(where != -1 && done == 0){
+    while(where != -1){
+         printf("%i", commandExecutingIndex);
         int where = pushReadyFromNew(commandExecutingIndex);
         if(where == 1){
             pushRunning(commandExecutingIndex);
@@ -345,10 +350,16 @@ int execute_commands()
         if(where == 3){
             pushReadyFromBlocked(commandExecutingIndex);
         }
-        if(done == 1){commandExecutingIndex++; done = 0;}
+        if(done == 1 && strcmp(function[commandExecutingIndex], "exit") == 0){
+            printf("%i", commandExecutingIndex);
+            done = 0;
+        }
+        if(done == 1 && strcmp(function[commandExecutingIndex], "exit") != 0){
+            commandExecutingIndex ++;
+            printf("%i", commandExecutingIndex);
+            done = 0;
+        }
     }
-    
-
     //get total time
     //calculate cpu percentage
 }
