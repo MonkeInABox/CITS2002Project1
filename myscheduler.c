@@ -55,8 +55,10 @@ char* position[100];
 int sleepTime = 0;
 int amountOfB[100];
 int fromSleep = 0;
-int commandExecutingIndex;
 int where = 0;
+int commandExecutingIndex = 0;
+int done = 0;
+
 
 void read_sysconfig(char argv0[], char filename[])
 {
@@ -191,6 +193,8 @@ void read_commands(char argv0[], char filename[])
 
 //  ----------------------------------------------------------------------
 
+
+
 void pushReadyFromBlocked(int commandIndex){
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(blockedQ[i], function[commandIndex]) == 0){
@@ -286,6 +290,7 @@ void pushRunning(int commandIndex){
     if(function[commandIndex] == "exit"){
         totalTime += waitTime[commandIndex];
         where = -1;
+        done = 1;
     }
     if(sleepTime != 0 && fromSleep == 0){
         fromSleep = 1;
@@ -324,14 +329,12 @@ int pushReadyFromNew(int commandIndex){
         }
     }
     totalTime += TIME_CORE_STATE_TRANSITIONS;
-
     return 1;
 }
 
 int execute_commands()
 {
-    commandExecutingIndex = 0;
-    while(where != -1){
+    while(where != -1 && done == 0){
         int where = pushReadyFromNew(commandExecutingIndex);
         if(where == 1){
             pushRunning(commandExecutingIndex);
@@ -342,7 +345,10 @@ int execute_commands()
         if(where == 3){
             pushReadyFromBlocked(commandExecutingIndex);
         }
+        if(done == 1){commandExecutingIndex++; done = 0;}
     }
+    
+
     //get total time
     //calculate cpu percentage
 }
