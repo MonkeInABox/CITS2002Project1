@@ -292,7 +292,7 @@ void pushRunning(int commandIndex){
     if(sleepTime != 0 && fromSleep == 0){
         fromSleep = 1;
         totalTime += sleepTime;
-        totalTime += TIME_CORE_STATE_TRANSITIONS;
+        //totalTime += TIME_CORE_STATE_TRANSITIONS;
         where = 2;
     }
     if(sleepTime != 0 && fromSleep == 1){
@@ -327,7 +327,7 @@ int pushReadyFromNew(int commandIndex){
             break;
         }
     }
-    totalTime += TIME_CORE_STATE_TRANSITIONS;
+    totalTime += TIME_CONTEXT_SWITCH;
     //printf("%s yope \n", function[commandIndex]);
     //printf("%i \n", strcmp(function[commandIndex], "exit"));
     if(strcmp(function[commandIndex], "exit") == 13){
