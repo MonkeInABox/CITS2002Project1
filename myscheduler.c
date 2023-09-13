@@ -211,8 +211,9 @@ void pushReadyFromBlocked(int commandIndex){
             break;
         }
     }
-    if(strcmp(readyQ[0], function[commandIndex]) == 0){
+    if(strcmp(readyQ[0], function[commandIndex]) == 1){
         where = 1;
+        printf("%i", where);
     }
     totalTime += TIME_CORE_STATE_TRANSITIONS;
 }
@@ -252,7 +253,7 @@ void pushBlocked(int commandIndex){
             break;
         }
     }
-    //printf("%i", fromSleep);
+    printf("%i", fromSleep);
     if(fromSleep == 1){
         //printf("%i", sleepTime);
         totalTime += sleepTime;
@@ -297,7 +298,8 @@ void pushRunning(int commandIndex){
     if(sleepTime != 0 && fromSleep == 1){
         fromSleep = 0;
         done = 1;
-        where = -1;
+        commandExecutingIndex++;
+        //where = -1;
     }
     else{
         int deviceIndex = 0;
@@ -326,20 +328,24 @@ int pushReadyFromNew(int commandIndex){
         }
     }
     totalTime += TIME_CORE_STATE_TRANSITIONS;
-    printf("%s", function[commandIndex]);
-    if(function[commandIndex] == "exit"){
-        printf("%i", commandExecutingIndex);
+    printf("%s yope \n", function[commandIndex]);
+    printf("%i \n", strcmp(function[commandIndex], "exit"));
+    if(strcmp(function[commandIndex], "exit") == 13){
+        //printf("%i", commandExecutingIndex);
+        printf("%i", totalTime);
+        printf("%i yoke \n", waitTime[commandIndex]);
         totalTime += waitTime[commandIndex];
-        where = -1;
-        done = 1;
+        printf("%i balls \n", totalTime);
+        commandExecutingIndex = -1;
+        //done = 1;
     }
     return 1;
 }
 
 int execute_commands()
 {
-    while(where != -1){
-         printf("%i", commandExecutingIndex);
+    while(commandExecutingIndex != -1){
+        printf("%i", commandExecutingIndex);
         int where = pushReadyFromNew(commandExecutingIndex);
         if(where == 1){
             pushRunning(commandExecutingIndex);
@@ -350,16 +356,19 @@ int execute_commands()
         if(where == 3){
             pushReadyFromBlocked(commandExecutingIndex);
         }
-        if(done == 1 && strcmp(function[commandExecutingIndex], "exit") == 0){
-            printf("%i", commandExecutingIndex);
-            done = 0;
-        }
-        if(done == 1 && strcmp(function[commandExecutingIndex], "exit") != 0){
-            commandExecutingIndex ++;
-            printf("%i", commandExecutingIndex);
-            done = 0;
-        }
+        //if(done == 1 && strcmp(function[commandExecutingIndex], "exit") == 0){
+            //printf("%i", commandExecutingIndex);
+            //done = 0;
+            //exit(EXIT_SUCCESS);
+        //}
+        //if(done == 1 && strcmp(function[commandExecutingIndex], "exit") == 1){
+            //commandExecutingIndex ++;
+            //printf("%i", commandExecutingIndex);
+            //done = 0;
+            //printf("%i", done);
+        //}
     }
+    printf("%i", totalTime);
     //get total time
     //calculate cpu percentage
 }
