@@ -253,7 +253,7 @@ void pushBlocked(int commandIndex){
             break;
         }
     }
-    printf("%i", fromSleep);
+    //printf("%i", fromSleep);
     if(fromSleep == 1){
         //printf("%i", sleepTime);
         totalTime += sleepTime;
@@ -272,7 +272,7 @@ void pushRunning(int commandIndex){
             break;
         }
     }
-    printf("%i", commandIndex);
+    //printf("%i", commandIndex);
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(runningQ[i], "\0") == 0){
             strcpy(runningQ[i], function[commandIndex]);
@@ -328,16 +328,17 @@ int pushReadyFromNew(int commandIndex){
         }
     }
     totalTime += TIME_CORE_STATE_TRANSITIONS;
-    printf("%s yope \n", function[commandIndex]);
-    printf("%i \n", strcmp(function[commandIndex], "exit"));
+    //printf("%s yope \n", function[commandIndex]);
+    //printf("%i \n", strcmp(function[commandIndex], "exit"));
     if(strcmp(function[commandIndex], "exit") == 13){
         //printf("%i", commandExecutingIndex);
-        printf("%i", totalTime);
-        printf("%i yoke \n", waitTime[commandIndex]);
+        //printf("%i", totalTime);
+        //printf("%i yoke \n", waitTime[commandIndex]);
         totalTime += waitTime[commandIndex];
-        printf("%i balls \n", totalTime);
+        //printf("%i balls \n", totalTime);
         commandExecutingIndex = -1;
         //done = 1;
+        return -1;
     }
     return 1;
 }
@@ -345,7 +346,7 @@ int pushReadyFromNew(int commandIndex){
 int execute_commands()
 {
     while(commandExecutingIndex != -1){
-        printf("%i", commandExecutingIndex);
+        //printf("%i", commandExecutingIndex);
         int where = pushReadyFromNew(commandExecutingIndex);
         if(where == 1){
             pushRunning(commandExecutingIndex);
@@ -368,7 +369,7 @@ int execute_commands()
             //printf("%i", done);
         //}
     }
-    printf("%i", totalTime);
+    //printf("%i", totalTime);
     //get total time
     //calculate cpu percentage
 }
