@@ -314,10 +314,16 @@ void pushRunning(int commandIndex){
         if(strcmp(function[commandIndex], "write") == 0){
             int time = amountOfB[commandIndex] / writeSpeed[deviceIndex];
             totalTime += time;
+            totalTime += TIME_ACQUIRE_BUS;
+            where = 4;
+            commandExecutingIndex++;
         }
         if(strcmp(function[commandIndex], "read") == 0){
             int time = amountOfB[commandIndex] / readSpeed[deviceIndex];
             totalTime += time;
+            totalTime += TIME_ACQUIRE_BUS;
+            where = 4;
+            commandExecutingIndex++;
         }
     }
     totalTime += TIME_CORE_STATE_TRANSITIONS;
@@ -362,6 +368,9 @@ int execute_commands()
         }
         if(where == 3){
             pushReadyFromBlocked(commandExecutingIndex);
+        }
+        if(where == 4){
+            pushReadyFromRunning(commandExecutingIndex);
         }
         //if(done == 1 && strcmp(function[commandExecutingIndex], "exit") == 0){
             //printf("%i", commandExecutingIndex);
