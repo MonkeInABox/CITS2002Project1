@@ -303,9 +303,12 @@ void pushRunning(int commandIndex){
     }
     else{
         int deviceIndex = 0;
-        for(int i = 1; deviceName[i] != NULL; i++){
+        printf("%i", deviceIndex);
+        for(int i = 0; deviceName[i] != NULL; i++){
+            printf("%i", strcmp(deviceName[i], position[commandIndex]));
             if(strcmp(deviceName[i], position[commandIndex]) == 0){
                 deviceIndex = i;
+                printf("%i", deviceIndex);
             }
         }
         if(strcmp(function[commandIndex], "write") == 0){
@@ -340,7 +343,10 @@ int pushReadyFromNew(int commandIndex){
         //done = 1;
         return -1;
     }
-    return 1;
+    //printf("pop");
+    if(strcmp(function[commandIndex], "exit") != 13){
+        return 1; 
+    }
 }
 
 int execute_commands()
