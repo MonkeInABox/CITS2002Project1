@@ -77,9 +77,6 @@ FILE *sysconfigFile;
         }
     }
     fclose(sysconfigFile);
-    //for(int i = 0; i < line; i++){
-        //printf("%s", placeHolderS[i]);
-    //}
     //split each line into the different types of data, putting the respective data in their respective arrays, 
     //using dataTypeNumber to keep track of what type of data is being accessed. 
     int dataTypeNumber = 0;
@@ -90,18 +87,12 @@ FILE *sysconfigFile;
             while(stringTemp != NULL){
                 if(dataTypeNumber == 1){
                     deviceName[i-2] = stringTemp;
-                    //printf("%s \n", deviceName[i-2]);
-                    //printf("%i", i-2);
                 }
                 if(dataTypeNumber == 2){
                     readSpeed[i-2] = atoi(stringTemp);
-                    //printf("%i \n", readSpeed[i-2]);
-                    //printf("%i \n", i-2);
                 }
                 if(dataTypeNumber == 3){
                     writeSpeed[i-2] = atoi(stringTemp);
-                    //printf("%i \n", writeSpeed[i-2]);
-                    //printf("%i \n", i-2);
                 }
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
@@ -123,19 +114,10 @@ void read_commands(char argv0[], char filename[])
     }
     fclose(commandsFile);
 
-    //for(int i = 0; i < line; i++){
-        //printf("%s", placeHolderC[i]);
-    //}
-    //int waitTime[100];
-    //char* function[100];
-    //char* position[100];
-    //int sleepTime[100];
-    //int amountOfB[100];
     int sleep = 0;
     int i = 0;
     int dataTypeNumber = 0;
     int totalWait = 0;
-    //while(placeHolderC[i] != NULL){
     if(strcmp(placeHolderC[i], "#") == 13){
         i++;
         strcpy(commandName[i-1], placeHolderC[i]);
@@ -148,8 +130,6 @@ void read_commands(char argv0[], char filename[])
                 if(dataTypeNumber == 0){
                     waitTime[i-2] = atoi(stringTemp) - totalWait;
                     totalWait = atoi(stringTemp);
-                    //printf("%i \n", waitTime[commandNum-1]);
-                    //printf("%i", commandNum-1);
                 }
                 if(dataTypeNumber == 1){
                     function[i-2] = stringTemp;
@@ -157,25 +137,15 @@ void read_commands(char argv0[], char filename[])
                         sleep = 1;
                     }
                     else{sleep = 0;}
-                    //printf("%s \n", function[i-2]);
-                    //printf("%i \n", i-2);
-                    //printf("%i \n", sleep);
                 }
                 if(dataTypeNumber == 2){
                     if(sleep == 1){
                         sleepTime[i-2] = atoi(stringTemp);
-                        //printf("%i", atoi(stringTemp));
-                        //printf("%i", sleepTime);
                     }
                     else{position[i-2] = stringTemp;}
-                    //printf("%s \n", position[i-2]);
-                    //printf("%i \n", i-2);
-                    //printf("%i \n", sleepTime[i-2]);
                 }
                 if(dataTypeNumber == 3){
                     amountOfB[i-2] = atoi(stringTemp);
-                    //printf("%i \n", amountOfB[i-2]);
-                    //printf("%i \n", i-2);
                 }
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
@@ -188,7 +158,6 @@ void read_commands(char argv0[], char filename[])
     printf("%i", waitTime[0]);
     printf("%i", waitTime[1]);
     printf("%i", waitTime[2]);
-    //printf("%i", sleepTime);
 }
 
 
@@ -259,7 +228,6 @@ void pushBlocked(int commandIndex){
             break;
         }
     }
-    //printf("%i", fromSleep);
     if(sleepTime[commandIndex] != 0){
         totalTime += sleepTime[commandIndex];
         commandExecutingIndex++;
@@ -316,39 +284,26 @@ void pushRunning(int commandIndex){
         }
     }
     printf("\n THIS IS THE FUNCTION!!!!!! %s \n", function[commandIndex]);
-    //printf("TEST TEST: %i \n", strcmp(function[commandIndex], "exit"));
     
-    //printf("after waits: %i\n", totalTime);
     if(sleepTime[commandIndex] != 0){
         hasPassed = 1;
         where = 2;
     }
-    //printf("TEST TEST: %i \n", strcmp(deviceName[1], position[commandIndex]));
-    //printf("HERE BITCH %i", strcmp(function[commandIndex], "read"));
     else if(strcmp(function[commandIndex], "write") == 0 || strcmp(function[commandIndex], "read") == 0){
         hasPassed = 1;
-        //printf("pop");
         int deviceIndex = 0;
-        //printf("%i", deviceIndex);
         for(int i = 0; deviceName[i] != NULL; i++){
-            //printf("%i", strcmp(deviceName[i], position[commandIndex]));
             if(strcmp(deviceName[i], position[commandIndex]) == 0){
                 deviceIndex = i;
                 printf("\n \n %s \n \n", deviceName[deviceIndex]);
                 break;
             }
         }
-        //printf("\n %i rtugyiopekhgdvsyzhu", strcmp(function[commandIndex], "read"));
-        //printf("bigHUGEBALLS");
         if(strcmp(function[commandIndex], "write") == 0){
-            //printf("\n EVENBIGGERLASRGERBLLS \n");
-            //printf("YIPPEEEEEEEEYOPETYOPW %i", writeSpeed[deviceIndex]);
-            //printf("YIPPEEEEEEEE %i", amountOfB[commandIndex]);
             int time = amountOfB[commandIndex] / (writeSpeed[deviceIndex]/1000000);
             if(dataBus == 0){
                 totalTime += TIME_ACQUIRE_BUS;
                 dataBus = 1;
-                printf("BALLS");
             }
             while(time != 0){
                 if(time <= DEFAULT_TIME_QUANTUM){
@@ -378,15 +333,12 @@ void pushRunning(int commandIndex){
             }
             where = 4;
             commandExecutingIndex++;
-            //printf("YIPPEEEEEEEE %i", totalTime);
         }
-        //printf("YIPPEEEEEEEEYOPETYOPW %i", readSpeed[deviceIndex]);
         if(strcmp(function[commandIndex], "read") == 0){
             int time = amountOfB[commandIndex] / (readSpeed[deviceIndex]/1000000);
             if(dataBus == 0){
                 totalTime += TIME_ACQUIRE_BUS;
                 dataBus = 1;
-                printf("BALLS2");
             }
             while(time != 0){
                 if(time <= DEFAULT_TIME_QUANTUM){
@@ -416,7 +368,6 @@ void pushRunning(int commandIndex){
             }
             where = 4;
             commandExecutingIndex++;
-            //printf("YIPPEEEEEEEE %i", totalTime);
         }
     }
     else{
@@ -425,7 +376,6 @@ void pushRunning(int commandIndex){
         where = -1;
     }
     printf("pushRunning end\n");
-    //printf("I LOVE BIG BALLS IF I PRINT THIS");
 }
 
 int pushReadyFromNew(int commandIndex){
@@ -458,22 +408,7 @@ int execute_commands()
         if(where == 4){
             pushReadyFromRunning(commandExecutingIndex);
         }
-        printf("where at end: %i \n", where);
-        //if(done == 1 && strcmp(function[commandExecutingIndex], "exit") == 0){
-            //printf("%i", commandExecutingIndex);
-            //done = 0;
-            //exit(EXIT_SUCCESS);
-        //}
-        //if(done == 1 && strcmp(function[commandExecutingIndex], "exit") == 1){
-            //commandExecutingIndex ++;
-            //printf("%i", commandExecutingIndex);
-            //done = 0;
-            //printf("%i", done);
-        //}
     }
-    //printf("%i", totalTime);
-    //get total time
-    //calculate cpu percentage
 }
 
 //  ----------------------------------------------------------------------
