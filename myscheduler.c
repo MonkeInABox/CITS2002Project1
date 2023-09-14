@@ -255,9 +255,7 @@ void pushBlocked(int commandIndex){
     }
     //printf("%i", fromSleep);
     if(sleepTime[commandIndex] != 0){
-        //printf("%i", sleepTime);
         totalTime += sleepTime[commandIndex];
-        //printf("ahalshdjkahdkhasdf");
         commandExecutingIndex++;
     }
     totalTime += TIME_CORE_STATE_TRANSITIONS;
@@ -265,7 +263,6 @@ void pushBlocked(int commandIndex){
 }
 
 void pushRunning(int commandIndex){
-    printf("pushRunning commence \n");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], function[commandIndex]) == 0){
             while(strcmp(readyQ[i], "\0") != 0){
@@ -328,30 +325,16 @@ void pushRunning(int commandIndex){
             totalTime += TIME_CORE_STATE_TRANSITIONS;
         }
     }
-    printf("where after running in method: %i\n", where);
-    printf("pushRunning end\n");
 }
 
 int pushReadyFromNew(int commandIndex){
-    //i dont think this actually does anything?!?!?!
-    printf("readyFromNew commence\n");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], "\0") == 0){
             strcpy(readyQ[i], commandName);
-            //printf("%s", readyQ[i]);
-            //printf("pop");
             break;
         }
     }
-    //printf("pop");
-    //printf("%s yope \n", function[commandIndex]);
-    //printf("%i \n", strcmp(function[commandIndex], "exit"));
-    //printf("%s", function[1]);
-    //printf("%s", function[commandIndex]);
     if(strstr(function[commandIndex], "exit") != NULL){
-        //printf("%i", commandExecutingIndex);
-        //printf("%i", totalTime);
-        //printf("%i yoke \n", waitTime[commandIndex]);
         printf("pop");
         totalTime += waitTime[commandIndex];
         //printf("%i balls \n", totalTime);
@@ -369,14 +352,10 @@ int pushReadyFromNew(int commandIndex){
 int execute_commands()
 {
     while(commandExecutingIndex != -1){
-        //printf("%i", commandExecutingIndex);
         where = pushReadyFromNew(commandExecutingIndex);
         if(where == 1){
             pushRunning(commandExecutingIndex);
-            printf("where after Running: %i \n", where);
-            //printf("pop");
         }
-        printf("%i \n", where);
         if(where == 2){
             pushBlocked(commandExecutingIndex);
         }
