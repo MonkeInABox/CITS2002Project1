@@ -109,36 +109,36 @@ FILE *sysconfigFile;
     }
 }
 
-
-void read_commands(char argv0[], char filename[])
-{
-    //open and read the commands file, obtaining each line as a string
-    FILE *commandsFile;
-    commandsFile = fopen(filename, "r");
-    int line = 0;
-    while(!feof(commandsFile) && !ferror(commandsFile)){
-        if(fgets(placeHolderC[line], 1000, commandsFile) != NULL){
-            line++;
-        }
-    }
-    fclose(commandsFile);
-
-    //split each line into the different types of data, putting the respective data in their respective arrays, 
-    //using dataTypeNumber to keep track of what type of data is being accessed. 
+//inserts all instructions of the process that's spawned in between the parent process, returning the index
+//where the parent process will continues copying information into the arrays.
+int spawn_read(int currentIndex, char commName[]){
+    //printf("spawn read commence \n");
+    //printf("%s \n", commName);
+    //printf("%i \n", strcmp(placeHolderC[19], commName));
     int sleep = 0;
-    int i = 0;
     int dataTypeNumber = 0;
     int totalWait = 0;
-    if(strcmp(placeHolderC[i], "#") == 13){
-        i++;
-        strcpy(commandName[i-1], placeHolderC[i]);
-        commandNameIndex = i - 1;
-        while(strcmp(placeHolderC[i], "#") != 13){
+    int placeHolderCIndex = 0;
+    commandNameIndex++;
+    for(int i = 0; i < MAX_SYSCALLS_PER_PROCESS*MAX_COMMANDS; i++){
+        if(strcmp(placeHolderC[i], commName) == 0){
+            placeHolderCIndex = i;
+            strcpy(commandName[commandNameIndex], placeHolderC[i]);
+            printf("broke \n");
+            break;
+        }
+    }
+    int i = currentIndex;
+    while(strcmp(placeHolderC[placeHolderCIndex], "#") != 13){
             i++;
+            //printf("%s\n", placeHolderC[placeHolderCIndex]);
+            placeHolderCIndex++;
+            //printf("%s\n", placeHolderC[placeHolderCIndex]);
             char* stringTemp;
-            stringTemp = strtok(placeHolderC[i], " ");
+            stringTemp = strtok(placeHolderC[placeHolderCIndex], " ");
             while(stringTemp != NULL){
                 if(dataTypeNumber == 0){
+                    //printf("%s\n", stringTemp);
                     waitTime[i-2] = atoi(stringTemp) - totalWait;
                     totalWait = atoi(stringTemp);
                 }
@@ -161,10 +161,89 @@ void read_commands(char argv0[], char filename[])
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
             }
+            dataTypeNumber = 0;                               //Reset back to zero for the next function
+        }
+        return i-1;
+    }
+
+void read_commands(char argv0[], char filename[])
+{
+    //open and read the commands file, obtaining each line as a string
+    FILE *commandsFile;
+    commandsFile = fopen(filename, "r");
+    int line = 0;
+    while(!feof(commandsFile) && !ferror(commandsFile)){
+        if(fgets(placeHolderC[line], 1000, commandsFile) != NULL){
+            line++;
+        }
+    }
+    fclose(commandsFile);
+
+    //split each line into the different types of data, putting the respective data in their respective arrays, 
+    //using dataTypeNumber to keep track of what type of data is being accessed. 
+    int spawnConfirm = 0;
+    int sleep = 0;
+    int i = 0;
+    int placeHolderCIndex = 0;
+    int dataTypeNumber = 0;
+    int totalWait = 0;
+    if(strcmp(placeHolderC[placeHolderCIndex], "#") == 13){
+        i++;
+        placeHolderCIndex++;
+        strcpy(commandName[i-1], placeHolderC[i]);
+        commandNameIndex = i - 1;
+        while(strcmp(placeHolderC[placeHolderCIndex], "#") != 13){
+            i++;
+            placeHolderCIndex++;
+            char* stringTemp;
+            stringTemp = strtok(placeHolderC[placeHolderCIndex], " ");
+            //printf("%s\n", placeHolderC[i]);
+            while(stringTemp != NULL){
+                if(dataTypeNumber == 0){
+                    waitTime[i-2] = atoi(stringTemp) - totalWait;
+                    totalWait = atoi(stringTemp);
+                }
+                if(dataTypeNumber == 1){
+                    function[i-2] = stringTemp;
+                    if(strcmp(stringTemp, "sleep") == 0){
+                        sleep = 1;
+                    }
+                    else{
+                        sleep = 0;
+                    }
+                    if(strcmp(stringTemp, "spawn") == 0){
+                        spawnConfirm = 1;
+                    }
+                    else{
+                        spawnConfirm = 0;
+                    }
+                }
+                if(dataTypeNumber == 2){
+                    if(sleep == 1){
+                        sleepTime[i-2] = atoi(stringTemp);
+                    } else if(spawnConfirm == 1){
+                        i = spawn_read(i,stringTemp);
+                    }
+                    else{
+                        position[i-2] = stringTemp;
+                    }
+                }
+                if(dataTypeNumber == 3){
+                    amountOfB[i-2] = atoi(stringTemp);
+                }
+                dataTypeNumber++;
+                stringTemp = strtok(NULL, " ");
+            }
             dataTypeNumber = 0;                                 //Reset back to zero for the next function
         }
         
-    }  
+    }
+    for(int j = 0; j < 7; j++){
+        printf("%i", waitTime[j]);
+    }
+    //for(int j = 0; j < 7; j++){
+      //  printf("%s", function[j]);
+    //}
 }
 
 
