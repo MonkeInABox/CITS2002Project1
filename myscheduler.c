@@ -307,7 +307,7 @@ void pushRunning(int commandIndex){
         where = 2;
     }
     printf("TEST TEST: %i \n", sleepTime[0]);
-    /*else{
+    if(strcmp(function[commandIndex], "write") == 13 ||strcmp(function[commandIndex], "read") == 13){
         printf("pop");
         int deviceIndex = 0;
         printf("%i", deviceIndex);
@@ -335,7 +335,7 @@ void pushRunning(int commandIndex){
             commandExecutingIndex++;
             totalTime += TIME_CORE_STATE_TRANSITIONS;
         }
-    }*/
+    }
     printf("pushRunning end\n");
 }
 
