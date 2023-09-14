@@ -194,6 +194,7 @@ void pushReadyFromBlocked(int commandIndex){
     //move back to running
     where = 1;
     totalTime += TIME_CORE_STATE_TRANSITIONS;
+    CPUTime += TIME_CORE_STATE_TRANSITIONS;
 }
 
 //moved here once a function has been run
@@ -216,6 +217,7 @@ void pushReadyFromRunning(int commandIndex){
     }
     //moved back to running
     totalTime += TIME_CORE_STATE_TRANSITIONS;
+    CPUTime += TIME_CORE_STATE_TRANSITIONS;
     where = 1;
 }
 
@@ -241,10 +243,12 @@ void pushBlocked(int commandIndex){
     //if it is here because it is sleeping, add the sleep time
     if(sleepTime[commandIndex] != 0){
         totalTime += sleepTime[commandIndex];
+        CPUTime += sleepTime[commandIndex];
         commandExecutingIndex++;
     }
     //move it to ready
     totalTime += TIME_CORE_STATE_TRANSITIONS;
+    CPUTime += TIME_CORE_STATE_TRANSITIONS;
     where = 3;
 }
 
@@ -271,6 +275,7 @@ void pushRunning(int commandIndex){
     while(waitTime[commandIndex] != 0){
         if(waitTime[commandIndex] <= DEFAULT_TIME_QUANTUM){
             totalTime += waitTime[commandIndex];
+            CPUTime += waitTime[commandIndex];
             waitTime[commandIndex] = 0;
         } else{
             totalTime += DEFAULT_TIME_QUANTUM;
@@ -309,9 +314,9 @@ void pushRunning(int commandIndex){
         //if write, use the write speed of the device to get the total time
         if(strcmp(function[commandIndex], "write") == 0){
             int time = amountOfB[commandIndex] / (writeSpeed[deviceIndex]/1000000);
-            CPUTime += time;
             if(dataBus == 0){
                 totalTime += TIME_ACQUIRE_BUS;
+                CPUTime += TIME_ACQUIRE_BUS;
                 dataBus = 1;
             }
             while(time != 0){
@@ -319,6 +324,7 @@ void pushRunning(int commandIndex){
                     totalTime += time;
                     time = 0;
                     totalTime += TIME_CONTEXT_SWITCH;
+                    CPUTime += TIME_CONTEXT_SWITCH;
                 } else{
                     totalTime += DEFAULT_TIME_QUANTUM;
                     time -= DEFAULT_TIME_QUANTUM;
@@ -339,6 +345,7 @@ void pushRunning(int commandIndex){
                         }
                     }
                     totalTime += TIME_CONTEXT_SWITCH;
+                    CPUTime += TIME_CONTEXT_SWITCH;
                     dataBus = 0;
                 }
             }
@@ -348,11 +355,12 @@ void pushRunning(int commandIndex){
         //if read, use the read speed of the device to get the total time
         else if(strcmp(function[commandIndex], "read") == 0){
             int time = amountOfB[commandIndex] / (readSpeed[deviceIndex]/1000000);
-            CPUTime += time;
             if(dataBus == 0){
                 totalTime += TIME_ACQUIRE_BUS;
+                CPUTime += TIME_ACQUIRE_BUS;
                 dataBus = 1;
                 totalTime += TIME_CONTEXT_SWITCH;
+                CPUTime += TIME_CONTEXT_SWITCH;
             }
             while(time != 0){
                 if(time <= DEFAULT_TIME_QUANTUM){
@@ -377,6 +385,7 @@ void pushRunning(int commandIndex){
                             break;
                         }
                     }
+                    CPUTime += TIME_CONTEXT_SWITCH;
                     totalTime += TIME_CONTEXT_SWITCH;
                     dataBus = 0;
                 }
