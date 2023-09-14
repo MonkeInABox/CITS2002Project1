@@ -263,7 +263,6 @@ void pushRunning(int commandIndex){
             waitTime[commandIndex] = 0;
         } else{
             totalTime += DEFAULT_TIME_QUANTUM;
-            CPUTime += DEFAULT_TIME_QUANTUM;
             waitTime[commandIndex] -= DEFAULT_TIME_QUANTUM;
             pushReadyFromRunning(commandIndex);
             for(int i = 0; i < MAX_COMMANDS; i++){
@@ -299,6 +298,7 @@ void pushRunning(int commandIndex){
         }
         if(strcmp(function[commandIndex], "write") == 0){
             int time = amountOfB[commandIndex] / (writeSpeed[deviceIndex]/1000000);
+            CPUTime += time;
             if(dataBus == 0){
                 totalTime += TIME_ACQUIRE_BUS;
                 dataBus = 1;
@@ -306,11 +306,10 @@ void pushRunning(int commandIndex){
             while(time != 0){
                 if(time <= DEFAULT_TIME_QUANTUM){
                     totalTime += time;
-                    CPUTime += time;
                     time = 0;
+                    totalTime += TIME_CONTEXT_SWITCH;
                 } else{
                     totalTime += DEFAULT_TIME_QUANTUM;
-                    CPUTime += DEFAULT_TIME_QUANTUM;
                     time -= DEFAULT_TIME_QUANTUM;
                     pushReadyFromRunning(commandIndex);
                     for(int i = 0; i < MAX_COMMANDS; i++){
@@ -329,6 +328,7 @@ void pushRunning(int commandIndex){
                         }
                     }
                     totalTime += TIME_CONTEXT_SWITCH;
+                    dataBus = 0;
                 }
             }
             where = 4;
@@ -336,18 +336,18 @@ void pushRunning(int commandIndex){
         }
         if(strcmp(function[commandIndex], "read") == 0){
             int time = amountOfB[commandIndex] / (readSpeed[deviceIndex]/1000000);
+            CPUTime += time;
             if(dataBus == 0){
                 totalTime += TIME_ACQUIRE_BUS;
                 dataBus = 1;
+                totalTime += TIME_CONTEXT_SWITCH;
             }
             while(time != 0){
                 if(time <= DEFAULT_TIME_QUANTUM){
                     totalTime += time;
-                    CPUTime += time;
                     time = 0;
                 } else{
                     totalTime += DEFAULT_TIME_QUANTUM;
-                    CPUTime += DEFAULT_TIME_QUANTUM;
                     time -= DEFAULT_TIME_QUANTUM;
                     pushReadyFromRunning(commandIndex);
                     for(int i = 0; i < MAX_COMMANDS; i++){
@@ -366,6 +366,7 @@ void pushRunning(int commandIndex){
                         }
                     }
                     totalTime += TIME_CONTEXT_SWITCH;
+                    dataBus = 0;
                 }
             }
             where = 4;
