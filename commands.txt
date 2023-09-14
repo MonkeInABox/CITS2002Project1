@@ -1,4 +1,8 @@
 #
+cal
+	80usecs    write   terminal 2000B
+	90usecs    exit
+#
 shortsleep
 	10usecs    sleep   1000000usecs
 	50usecs    exit
