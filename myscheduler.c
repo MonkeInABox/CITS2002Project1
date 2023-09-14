@@ -54,7 +54,6 @@ char* function[100];
 char* position[100];
 int sleepTime[MAX_SYSCALLS_PER_PROCESS];
 int amountOfB[100];
-int fromSleep = 0;
 int where = 0;
 int commandExecutingIndex = 0;
 int done = 0;
@@ -196,6 +195,7 @@ void read_commands(char argv0[], char filename[])
 
 
 void pushReadyFromBlocked(int commandIndex){
+    printf("ReadyFromBlocked commence \n");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(blockedQ[i], function[commandIndex]) == 0){
             while(strcmp(blockedQ[i], "\0") != 0){
@@ -211,14 +211,13 @@ void pushReadyFromBlocked(int commandIndex){
             break;
         }
     }
-    if(strcmp(readyQ[0], function[commandIndex]) == 1){
-        where = 1;
-        printf("%i", where);
-    }
+    where = 1;
     totalTime += TIME_CORE_STATE_TRANSITIONS;
+    printf("ReadyFromBlocked end \n");
 }
 
 void pushReadyFromRunning(int commandIndex){
+    printf("ReadyFromRunning commence \n");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(runningQ[i], function[commandIndex]) == 0){
             while(strcmp(runningQ[i], "\0") != 0){
@@ -235,9 +234,11 @@ void pushReadyFromRunning(int commandIndex){
         }
     }
     totalTime += TIME_CORE_STATE_TRANSITIONS;
+    printf("ReadyFromRunning end \n");
 }
 
 void pushBlocked(int commandIndex){
+    printf("pushBlocked commence \n");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(runningQ[i], function[commandIndex]) == 0){
             while(strcmp(runningQ[i], "\0") != 0){
@@ -260,9 +261,11 @@ void pushBlocked(int commandIndex){
     }
     totalTime += TIME_CORE_STATE_TRANSITIONS;
     where = 3;
+    printf("pushBlocked end \n");
 }
 
 void pushRunning(int commandIndex){
+    printf("pushRunning commence\n");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], function[commandIndex]) == 0){
             while(strcmp(readyQ[i], "\0") != 0){
@@ -293,10 +296,18 @@ void pushRunning(int commandIndex){
             printf("popwaitwait");
         }
     }
+    printf("TEST TEST: %i \n", sleepTime[0]);
+    if(strcmp(function[commandIndex], "exit") == 13){
+        printf("pass");
+        commandExecutingIndex = -1;
+        where = -1;
+    }
+    printf("after waits: %i\n", totalTime);
     if(sleepTime[commandIndex] != 0){
         where = 2;
     }
-    else{
+    printf("TEST TEST: %i \n", sleepTime[0]);
+    /*else{
         printf("pop");
         int deviceIndex = 0;
         printf("%i", deviceIndex);
@@ -324,35 +335,28 @@ void pushRunning(int commandIndex){
             commandExecutingIndex++;
             totalTime += TIME_CORE_STATE_TRANSITIONS;
         }
-    }
+    }*/
+    printf("pushRunning end\n");
 }
 
 int pushReadyFromNew(int commandIndex){
+    printf("ReadyFromNew commence\n");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], "\0") == 0){
             strcpy(readyQ[i], commandName);
             break;
         }
     }
-    if(strstr(function[commandIndex], "exit") != NULL){
-        printf("pop");
-        totalTime += waitTime[commandIndex];
-        //printf("%i balls \n", totalTime);
-        commandExecutingIndex = -1;
-        //done = 1;
-        return -1;
-    }
-    else{
-        //printf("pop");
-        printf("readyFromNew end\n");
-        return 1; 
-    }
+    printf("%i", commandIndex);
+    printf("readyFromNew end\n");
+    return 1; 
 }
 
 int execute_commands()
 {
+    where = pushReadyFromNew(commandExecutingIndex);
     while(commandExecutingIndex != -1){
-        where = pushReadyFromNew(commandExecutingIndex);
+        printf("where at start: %i \n", where);
         if(where == 1){
             pushRunning(commandExecutingIndex);
         }
@@ -365,6 +369,7 @@ int execute_commands()
         if(where == 4){
             pushReadyFromRunning(commandExecutingIndex);
         }
+        printf("where at end: %i \n", where);
         //if(done == 1 && strcmp(function[commandExecutingIndex], "exit") == 0){
             //printf("%i", commandExecutingIndex);
             //done = 0;
