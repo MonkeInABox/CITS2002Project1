@@ -48,7 +48,7 @@ char runningQ[MAX_COMMANDS][21];
 char blockedQ[MAX_COMMANDS][21];
 int totalTime = 0;
 int CPUtime = 0;
-char commandName[MAX_COMMAND_NAME];
+char commandName[MAX_COMMAND_NAME][MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];
 int waitTime[100];
 char* function[100];
 char* position[100];
