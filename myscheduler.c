@@ -36,7 +36,7 @@
 
 //  ----------------------------------------------------------------------
 
-#define CHAR_COMMENT                    '#'
+#define CHAR_COMMENT                    "#"
 
 char placeHolderC[100][1000];
 char placeHolderS[MAX_DEVICES + 4][150];
@@ -81,8 +81,8 @@ FILE *sysconfigFile;
     //split each line into the different types of data, putting the respective data in their respective arrays, 
     //using dataTypeNumber to keep track of what type of data is being accessed. 
     int dataTypeNumber = 0;
-    for(int i = 1; i < 7; i++) {
-        if(placeHolderS[i] != "#"){
+    for(int i = 2; i < 7; i++) {
+        if(strcmp(placeHolderS[i], CHAR_COMMENT) != 0){
             char* stringTemp;
             stringTemp = strtok(placeHolderS[i], " ");
             while(stringTemp != NULL){
@@ -102,6 +102,7 @@ FILE *sysconfigFile;
         }
     }
 }
+
 
 void read_commands(char argv0[], char filename[])
 {
@@ -239,7 +240,6 @@ void pushBlocked(int commandIndex){
 }
 
 void pushRunning(int commandIndex){
-    int hasPassed = 0;
     printf("pushRunning commence\n");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], commandName[commandNameIndex]) == 0){
@@ -256,9 +256,8 @@ void pushRunning(int commandIndex){
             break;
         }
     }
-    totalTime += TIME_CONTEXT_SWITCH;
+    //totalTime += TIME_CONTEXT_SWITCH;
     while(waitTime[commandIndex] != 0){
-        hasPassed = 1;
         if(waitTime[commandIndex] <= DEFAULT_TIME_QUANTUM){
             totalTime += waitTime[commandIndex];
             waitTime[commandIndex] = 0;
@@ -282,17 +281,14 @@ void pushRunning(int commandIndex){
                     break;
                 }
             }
-            totalTime += TIME_CONTEXT_SWITCH;
         }
     }
     printf("\n THIS IS THE FUNCTION!!!!!! %s \n", function[commandIndex]);
     
     if(sleepTime[commandIndex] != 0){
-        hasPassed = 1;
         where = 2;
     }
     else if(strcmp(function[commandIndex], "write") == 0 || strcmp(function[commandIndex], "read") == 0){
-        hasPassed = 1;
         int deviceIndex = 0;
         for(int i = 0; deviceName[i] != NULL; i++){
             if(strcmp(deviceName[i], position[commandIndex]) == 0){
@@ -310,6 +306,7 @@ void pushRunning(int commandIndex){
             while(time != 0){
                 if(time <= DEFAULT_TIME_QUANTUM){
                     totalTime += time;
+                    CPUTime += time;
                     time = 0;
                 } else{
                     totalTime += DEFAULT_TIME_QUANTUM;
@@ -346,6 +343,7 @@ void pushRunning(int commandIndex){
             while(time != 0){
                 if(time <= DEFAULT_TIME_QUANTUM){
                     totalTime += time;
+                    CPUTime += time;
                     time = 0;
                 } else{
                     totalTime += DEFAULT_TIME_QUANTUM;
@@ -374,6 +372,9 @@ void pushRunning(int commandIndex){
             commandExecutingIndex++;
         }
     }
+    else if(strcmp(commandName[commandIndex], "spawn") == 0){
+        where = -1;
+    }
     else{
         printf("pass");
         commandExecutingIndex = -1;
@@ -395,7 +396,7 @@ int pushReadyFromNew(int commandIndex){
     return 1; 
 }
 
-int execute_commands()
+void execute_commands()
 {
     where = pushReadyFromNew(commandExecutingIndex);
     while(commandExecutingIndex != -1){
