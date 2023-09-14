@@ -238,6 +238,7 @@ void pushReadyFromRunning(int commandIndex){
         }
     }
     totalTime += TIME_CORE_STATE_TRANSITIONS;
+    where = 1;
     printf("ReadyFromRunning end \n");
 }
 
@@ -375,9 +376,8 @@ void pushRunning(int commandIndex){
                     totalTime += TIME_CONTEXT_SWITCH;
                 }
             }
-            where = 1;
+            where = 4;
             commandExecutingIndex++;
-            totalTime += TIME_CORE_STATE_TRANSITIONS;
             //printf("YIPPEEEEEEEE %i", totalTime);
         }
         //printf("YIPPEEEEEEEEYOPETYOPW %i", readSpeed[deviceIndex]);
@@ -414,9 +414,8 @@ void pushRunning(int commandIndex){
                     totalTime += TIME_CONTEXT_SWITCH;
                 }
             }
-            where = 1;
+            where = 4;
             commandExecutingIndex++;
-            totalTime += TIME_CORE_STATE_TRANSITIONS;
             //printf("YIPPEEEEEEEE %i", totalTime);
         }
     }
