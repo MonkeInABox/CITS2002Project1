@@ -35,38 +35,44 @@
 
 
 //  ----------------------------------------------------------------------
+//                      GLOBAL VARIABLES
+//  ----------------------------------------------------------------------
 
 #define CHAR_COMMENT                    "#"
 
-char placeHolderC[100][1000];
-char placeHolderS[MAX_DEVICES + 4][150];
-char *deviceName[MAX_DEVICES];
-int readSpeed[MAX_DEVICES];
-int writeSpeed[MAX_DEVICES];
-char readyQ[MAX_COMMANDS][21];
-char runningQ[MAX_COMMANDS][21];
-char blockedQ[MAX_COMMANDS][21];
-int totalTime = 0;
-int CPUTime = 0;
-int CPUPercent = 0;
+char placeHolderC[100][150];                    //The array of placeholder strings when reading the commands file
+char placeHolderS[MAX_DEVICES + 4][150];        //The array of placeholder strings when reading the sysconfig file
+char *deviceName[MAX_DEVICES];                  //The array of device names gathered from the sysconfig file
+int readSpeed[MAX_DEVICES];                     //The array of devices read speeds gathered from the sysconfig file
+int writeSpeed[MAX_DEVICES];                    //The array of devices write speeds gathered from the sysconfig file
+char readyQ[MAX_COMMANDS][21];                  //The array of functions currently waiting in ready
+char runningQ[MAX_COMMANDS][21];                //The array of functions currently waiting in running
+char blockedQ[MAX_COMMANDS][21];                //The array of functions currently waiting in blocked
+int totalTime = 0;                              //A counter for the total amount of time that has passed (returned at end)
+int CPUTime = 0;                                //A counter for the total amount of time that has passed, but only involving the CPU (returned at end)
+int CPUPercent = 0;                             //The percentage of time in CPU vs. elsewhere (total time/cpu time) times 100
 char commandName[MAX_COMMAND_NAME][MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];
-int waitTime[100];
-char* function[100];
-char* position[100];
-int sleepTime[MAX_SYSCALLS_PER_PROCESS];
-int amountOfB[100];
-int where = 0;
-int commandExecutingIndex = 0;
-int done = 0;
-int commandNameIndex = 0;
-int dataBus = 0;
+                                                //Array of names of the different commands in the commands file
+int waitTime[100];                              //Array of the wait times for each function in the commands file
+char* function[100];                            //Array of the function names for each function in the commands file
+char* position[100];                            //Array of the position in the system (i.e. hard-drive) for each function in the commands file
+int sleepTime[MAX_SYSCALLS_PER_PROCESS];        //Array of the sleep time for each function in the commands file (empty if not sleeping)
+int amountOfB[100];                             //Array of the amount of Bytes to be passed for each function in the commands file
+int where = 0;                                  //A counter to see where the function will be going, shown in execute commands
+int commandExecutingIndex = 0;                  //The index of the function that is currently being processed
+int commandNameIndex = 0;                       //The index of the command name currently being processed
+int dataBus = 0;                                //1 if the databus has already been gathered this function, 0 if not
 
+
+//  ----------------------------------------------------
+//       READ FUNCTIONS
+//  ----------------------------------------------------
 
 void read_sysconfig(char argv0[], char filename[])
 {
 FILE *sysconfigFile;
 
-    //open and read the system config file, getting each line as a string
+    //open and read the system config file, obtaining each line as a string
     sysconfigFile = fopen(filename, "r");
     if(sysconfigFile == NULL){
         exit(EXIT_FAILURE);
@@ -98,7 +104,7 @@ FILE *sysconfigFile;
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
             }
-            dataTypeNumber = 0;
+            dataTypeNumber = 0;                             //Reset dataTypeNumber back to zero for the next function
         }
     }
 }
@@ -106,6 +112,7 @@ FILE *sysconfigFile;
 
 void read_commands(char argv0[], char filename[])
 {
+    //open and read the commands file, obtaining each line as a string
     FILE *commandsFile;
     commandsFile = fopen(filename, "r");
     int line = 0;
@@ -116,6 +123,8 @@ void read_commands(char argv0[], char filename[])
     }
     fclose(commandsFile);
 
+    //split each line into the different types of data, putting the respective data in their respective arrays, 
+    //using dataTypeNumber to keep track of what type of data is being accessed. 
     int sleep = 0;
     int i = 0;
     int dataTypeNumber = 0;
@@ -152,24 +161,21 @@ void read_commands(char argv0[], char filename[])
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
             }
-            dataTypeNumber = 0;
+            dataTypeNumber = 0;                                 //Reset back to zero for the next function
         }
         
     }  
-    printf("%s", commandName[commandNameIndex]);
-    printf("%i", waitTime[0]);
-    printf("%i", waitTime[1]);
-    printf("%i", waitTime[2]);
 }
 
 
+//  ----------------------------------------------------
+//      FUNCTIONS TO BE USED BY EXECUTE
+//  ----------------------------------------------------
 
-//  ----------------------------------------------------------------------
 
-
-
+//moved here after blocked
 void pushReadyFromBlocked(int commandIndex){
-    printf("ReadyFromBlocked commence \n");
+    //add to blocked queue
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(blockedQ[i], commandName[commandNameIndex]) == 0){
             while(strcmp(blockedQ[i], "\0") != 0){
@@ -185,13 +191,14 @@ void pushReadyFromBlocked(int commandIndex){
             break;
         }
     }
+    //move back to running
     where = 1;
     totalTime += TIME_CORE_STATE_TRANSITIONS;
-    printf("ReadyFromBlocked end \n");
 }
 
+//moved here once a function has been run
 void pushReadyFromRunning(int commandIndex){
-    printf("ReadyFromRunning commence \n");
+    //added to running queue
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(runningQ[i], commandName[commandNameIndex]) == 0){
             while(strcmp(runningQ[i], "\0") != 0){
@@ -201,20 +208,21 @@ void pushReadyFromRunning(int commandIndex){
             break;
         }
     }
-    printf("YOPE");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], "\0") == 0){
             strcpy(readyQ[i], commandName[commandNameIndex]);
             break;
         }
     }
+    //moved back to running
     totalTime += TIME_CORE_STATE_TRANSITIONS;
     where = 1;
-    printf("ReadyFromRunning end \n");
 }
 
+
+//when a function is blocked (or sleeping), it goes here
 void pushBlocked(int commandIndex){
-    printf("pushBlocked commence \n");
+    //add function to blocked queue
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(runningQ[i], commandName[commandNameIndex]) == 0){
             while(strcmp(runningQ[i], "\0") != 0){
@@ -230,17 +238,20 @@ void pushBlocked(int commandIndex){
             break;
         }
     }
+    //if it is here because it is sleeping, add the sleep time
     if(sleepTime[commandIndex] != 0){
         totalTime += sleepTime[commandIndex];
         commandExecutingIndex++;
     }
+    //move it to ready
     totalTime += TIME_CORE_STATE_TRANSITIONS;
     where = 3;
-    printf("pushBlocked end \n");
 }
 
+
+//When a command is running, it is given to this function
 void pushRunning(int commandIndex){
-    printf("pushRunning commence\n");
+    //add command to running queue
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], commandName[commandNameIndex]) == 0){
             while(strcmp(readyQ[i], "\0") != 0){
@@ -256,7 +267,7 @@ void pushRunning(int commandIndex){
             break;
         }
     }
-    //totalTime += TIME_CONTEXT_SWITCH;
+    //check the time quantum and divide the function accordingly
     while(waitTime[commandIndex] != 0){
         if(waitTime[commandIndex] <= DEFAULT_TIME_QUANTUM){
             totalTime += waitTime[commandIndex];
@@ -282,20 +293,20 @@ void pushRunning(int commandIndex){
             }
         }
     }
-    printf("\n THIS IS THE FUNCTION!!!!!! %s \n", function[commandIndex]);
-    
+    //if there is sleep time (i.e. it is a sleep function), where is 2, so it can be blocked
     if(sleepTime[commandIndex] != 0){
         where = 2;
     }
+    //otherwise if it is a read or write function, check which device it is using, given by the deviceIndex
     else if(strcmp(function[commandIndex], "write") == 0 || strcmp(function[commandIndex], "read") == 0){
         int deviceIndex = 0;
         for(int i = 0; deviceName[i] != NULL; i++){
             if(strcmp(deviceName[i], position[commandIndex]) == 0){
                 deviceIndex = i;
-                printf("\n \n %s \n \n", deviceName[deviceIndex]);
                 break;
             }
         }
+        //if write, use the write speed of the device to get the total time
         if(strcmp(function[commandIndex], "write") == 0){
             int time = amountOfB[commandIndex] / (writeSpeed[deviceIndex]/1000000);
             CPUTime += time;
@@ -334,7 +345,8 @@ void pushRunning(int commandIndex){
             where = 4;
             commandExecutingIndex++;
         }
-        if(strcmp(function[commandIndex], "read") == 0){
+        //if read, use the read speed of the device to get the total time
+        else if(strcmp(function[commandIndex], "read") == 0){
             int time = amountOfB[commandIndex] / (readSpeed[deviceIndex]/1000000);
             CPUTime += time;
             if(dataBus == 0){
@@ -373,35 +385,43 @@ void pushRunning(int commandIndex){
             commandExecutingIndex++;
         }
     }
+    //otherwise if its spawn...
     else if(strcmp(commandName[commandIndex], "spawn") == 0){
         where = -1;
     }
+    //otherwise it is an exit function, in which case it will end the process
     else{
-        printf("pass");
         commandExecutingIndex = -1;
         where = -1;
     }
-    printf("pushRunning end\n");
 }
 
+
+//function that each command goes through first when originally activated
 int pushReadyFromNew(int commandIndex){
-    printf("ReadyFromNew commence\n");
+    //Place new command name in the ready queue
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], "\0") == 0){
             strcpy(readyQ[i], commandName[commandNameIndex]);
             break;
         }
     }
-    printf("%i", commandIndex);
-    printf("readyFromNew end\n");
+    //return 1 to get to the next function
     return 1; 
 }
 
+
+//  ----------------------------------------------------
+//      EXECUTE FUNCTION TO CALL ALL OTHERS
+//  ----------------------------------------------------
+
 void execute_commands()
 {
+    //initialise new command by passing through ready:
     where = pushReadyFromNew(commandExecutingIndex);
+    //checking what where has become before moving onto the respective function, allowing for
+    //the function to move through the desired path. 
     while(commandExecutingIndex != -1){
-        printf("where at start: %i \n", where);
         if(where == 1){
             pushRunning(commandExecutingIndex);
         }
@@ -415,10 +435,13 @@ void execute_commands()
             pushReadyFromRunning(commandExecutingIndex);
         }
     }
+    //calculate CPU percentage using the CPU time and the total time
     CPUPercent = (CPUTime * 100) / totalTime;
 }
 
-//  ----------------------------------------------------------------------
+//  ----------------------------------------------------
+//                  MAIN
+//  ----------------------------------------------------
 
 int main(int argc, char *argv[])
 {
