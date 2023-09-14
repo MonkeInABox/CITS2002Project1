@@ -139,11 +139,11 @@ int spawn_read(int currentIndex, char commName[]){
             while(stringTemp != NULL){
                 if(dataTypeNumber == 0){
                     //printf("%s\n", stringTemp);
-                    waitTime[i-2] = atoi(stringTemp) - totalWait;
+                    waitTime[i] = atoi(stringTemp) - totalWait;
                     totalWait = atoi(stringTemp);
                 }
                 if(dataTypeNumber == 1){
-                    function[i-2] = stringTemp;
+                    function[i] = stringTemp;
                     if(strcmp(stringTemp, "sleep") == 0){
                         sleep = 1;
                     }
@@ -151,12 +151,12 @@ int spawn_read(int currentIndex, char commName[]){
                 }
                 if(dataTypeNumber == 2){
                     if(sleep == 1){
-                        sleepTime[i-2] = atoi(stringTemp);
+                        sleepTime[i] = atoi(stringTemp);
                     }
-                    else{position[i-2] = stringTemp;}
+                    else{position[i] = stringTemp;}
                 }
                 if(dataTypeNumber == 3){
-                    amountOfB[i-2] = atoi(stringTemp);
+                    amountOfB[i] = atoi(stringTemp);
                 }
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
@@ -183,15 +183,13 @@ void read_commands(char argv0[], char filename[])
     //using dataTypeNumber to keep track of what type of data is being accessed. 
     int spawnConfirm = 0;
     int sleep = 0;
-    int i = 0;
+    int i = -1;
     int placeHolderCIndex = 0;
     int dataTypeNumber = 0;
     int totalWait = 0;
     if(strcmp(placeHolderC[placeHolderCIndex], "#") == 13){
-        i++;
         placeHolderCIndex++;
-        strcpy(commandName[i-1], placeHolderC[i]);
-        commandNameIndex = i - 1;
+        strcpy(commandName[commandNameIndex], placeHolderC[placeHolderCIndex]);
         while(strcmp(placeHolderC[placeHolderCIndex], "#") != 13){
             i++;
             placeHolderCIndex++;
@@ -200,11 +198,11 @@ void read_commands(char argv0[], char filename[])
             //printf("%s\n", placeHolderC[i]);
             while(stringTemp != NULL){
                 if(dataTypeNumber == 0){
-                    waitTime[i-2] = atoi(stringTemp) - totalWait;
+                    waitTime[i] = atoi(stringTemp) - totalWait;
                     totalWait = atoi(stringTemp);
                 }
                 if(dataTypeNumber == 1){
-                    function[i-2] = stringTemp;
+                    function[i] = stringTemp;
                     if(strcmp(stringTemp, "sleep") == 0){
                         sleep = 1;
                     }
@@ -220,16 +218,16 @@ void read_commands(char argv0[], char filename[])
                 }
                 if(dataTypeNumber == 2){
                     if(sleep == 1){
-                        sleepTime[i-2] = atoi(stringTemp);
+                        sleepTime[i] = atoi(stringTemp);
                     } else if(spawnConfirm == 1){
                         i = spawn_read(i,stringTemp);
                     }
                     else{
-                        position[i-2] = stringTemp;
+                        position[i] = stringTemp;
                     }
                 }
                 if(dataTypeNumber == 3){
-                    amountOfB[i-2] = atoi(stringTemp);
+                    amountOfB[i] = atoi(stringTemp);
                 }
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
@@ -238,12 +236,13 @@ void read_commands(char argv0[], char filename[])
         }
         
     }
+    printf("exec");
     for(int j = 0; j < 7; j++){
         printf("%i", waitTime[j]);
     }
-    //for(int j = 0; j < 7; j++){
-      //  printf("%s", function[j]);
-    //}
+    for(int j = 0; j < 7; j++){
+        printf("%s", function[j]);
+    }
 }
 
 
@@ -254,6 +253,7 @@ void read_commands(char argv0[], char filename[])
 
 //moved here after blocked
 void pushReadyFromBlocked(int commandIndex){
+    printf("readyFromBlocked begin");
     //add to blocked queue
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(blockedQ[i], commandName[commandNameIndex]) == 0){
@@ -274,11 +274,13 @@ void pushReadyFromBlocked(int commandIndex){
     where = 1;
     totalTime += TIME_CORE_STATE_TRANSITIONS;
     CPUTime += TIME_CORE_STATE_TRANSITIONS;
+    printf("readyFromBlocked end");
 }
 
 //moved here once a function has been run
 void pushReadyFromRunning(int commandIndex){
     //added to running queue
+    printf("readyFromRunning begin");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(runningQ[i], commandName[commandNameIndex]) == 0){
             while(strcmp(runningQ[i], "\0") != 0){
@@ -298,12 +300,14 @@ void pushReadyFromRunning(int commandIndex){
     totalTime += TIME_CORE_STATE_TRANSITIONS;
     CPUTime += TIME_CORE_STATE_TRANSITIONS;
     where = 1;
+    printf("readyFromRunning end");
 }
 
 
 //when a function is blocked (or sleeping), it goes here
 void pushBlocked(int commandIndex){
     //add function to blocked queue
+    printf("Blocked begin");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(runningQ[i], commandName[commandNameIndex]) == 0){
             while(strcmp(runningQ[i], "\0") != 0){
@@ -329,12 +333,14 @@ void pushBlocked(int commandIndex){
     totalTime += TIME_CORE_STATE_TRANSITIONS;
     CPUTime += TIME_CORE_STATE_TRANSITIONS;
     where = 3;
+    printf("blocked end");
 }
 
 
 //When a command is running, it is given to this function
 void pushRunning(int commandIndex){
     //add command to running queue
+    printf("running begin");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], commandName[commandNameIndex]) == 0){
             while(strcmp(readyQ[i], "\0") != 0){
@@ -482,12 +488,14 @@ void pushRunning(int commandIndex){
         commandExecutingIndex = -1;
         where = -1;
     }
+    printf("running end");
 }
 
 
 //function that each command goes through first when originally activated
 int pushReadyFromNew(int commandIndex){
     //Place new command name in the ready queue
+    printf("runningFromNew begin");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], "\0") == 0){
             strcpy(readyQ[i], commandName[commandNameIndex]);
@@ -495,6 +503,7 @@ int pushReadyFromNew(int commandIndex){
         }
     }
     //return 1 to get to the next function
+    printf("runningFromNew end");
     return 1; 
 }
 
