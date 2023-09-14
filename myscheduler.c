@@ -58,6 +58,7 @@ int where = 0;
 int commandExecutingIndex = 0;
 int done = 0;
 int commandNameIndex = 0;
+int dataBus = 0;
 
 
 void read_sysconfig(char argv0[], char filename[])
@@ -236,7 +237,6 @@ void pushReadyFromRunning(int commandIndex){
             break;
         }
     }
-    where = 1;
     totalTime += TIME_CORE_STATE_TRANSITIONS;
     printf("ReadyFromRunning end \n");
 }
@@ -269,6 +269,7 @@ void pushBlocked(int commandIndex){
 }
 
 void pushRunning(int commandIndex){
+    int hasPassed = 0;
     printf("pushRunning commence\n");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], commandName[commandNameIndex]) == 0){
@@ -287,6 +288,7 @@ void pushRunning(int commandIndex){
     }
     totalTime += TIME_CONTEXT_SWITCH;
     while(waitTime[commandIndex] != 0){
+        hasPassed = 1;
         if(waitTime[commandIndex] <= DEFAULT_TIME_QUANTUM){
             totalTime += waitTime[commandIndex];
             waitTime[commandIndex] = 0;
@@ -312,19 +314,18 @@ void pushRunning(int commandIndex){
             totalTime += TIME_CONTEXT_SWITCH;
         }
     }
-    //printf("TEST TEST: %i \n", strcmp(function[commandIndex], "exit"));
-    if(strcmp(function[commandIndex], "exit") == 13){
-        printf("pass");
-        commandExecutingIndex = -1;
-        where = -1;
-    }
+    printf("\n THIS IS THE FUNCTION!!!!!! %s \n", function[commandIndex]);
+    printf("TEST TEST: %i \n", strcmp(function[commandIndex], "exit"));
+    
     //printf("after waits: %i\n", totalTime);
-    else if(sleepTime[commandIndex] != 0){
+    if(sleepTime[commandIndex] != 0){
+        hasPassed = 1;
         where = 2;
     }
     //printf("TEST TEST: %i \n", strcmp(deviceName[1], position[commandIndex]));
     //printf("HERE BITCH %i", strcmp(function[commandIndex], "read"));
     else if(strcmp(function[commandIndex], "write") == 0 || strcmp(function[commandIndex], "read") == 0){
+        hasPassed = 1;
         //printf("pop");
         int deviceIndex = 0;
         //printf("%i", deviceIndex);
@@ -343,28 +344,88 @@ void pushRunning(int commandIndex){
             //printf("YIPPEEEEEEEEYOPETYOPW %i", writeSpeed[deviceIndex]);
             //printf("YIPPEEEEEEEE %i", amountOfB[commandIndex]);
             int time = amountOfB[commandIndex] / (writeSpeed[deviceIndex]/1000000);
-            totalTime += time;
-            totalTime += TIME_ACQUIRE_BUS;
-            where = 4;
+            if(dataBus == 0){
+                totalTime += TIME_ACQUIRE_BUS;
+                dataBus == 1;
+                printf("BALLS");
+            }
+            while(time != 0){
+                if(time <= DEFAULT_TIME_QUANTUM){
+                    totalTime += time;
+                    time = 0;
+                } else{
+                    totalTime += DEFAULT_TIME_QUANTUM;
+                    time -= DEFAULT_TIME_QUANTUM;
+                    pushReadyFromRunning(commandIndex);
+                    for(int i = 0; i < MAX_COMMANDS; i++){
+                        if(strcmp(readyQ[i], commandName[commandNameIndex]) == 0){
+                            while(strcmp(readyQ[i], "\0") != 0){
+                                strcpy(readyQ[i], readyQ[i+1]);
+                                i++;
+                            }
+                            break;
+                        }
+                    }
+                    for(int i = 0; i < MAX_COMMANDS; i++){
+                        if(strcmp(runningQ[i], "\0") == 0){
+                            strcpy(runningQ[i], commandName[commandNameIndex]);
+                            break;
+                        }
+                    }
+                    totalTime += TIME_CONTEXT_SWITCH;
+                }
+            }
+            where = 1;
             commandExecutingIndex++;
             totalTime += TIME_CORE_STATE_TRANSITIONS;
             //printf("YIPPEEEEEEEE %i", totalTime);
-            where = 4;
         }
         //printf("YIPPEEEEEEEEYOPETYOPW %i", readSpeed[deviceIndex]);
         if(strcmp(function[commandIndex], "read") == 0){
             int time = amountOfB[commandIndex] / (readSpeed[deviceIndex]/1000000);
-            totalTime += time;
-            totalTime += TIME_ACQUIRE_BUS;
-            where = 4;
+            if(dataBus == 0){
+                totalTime += TIME_ACQUIRE_BUS;
+                dataBus == 1;
+                printf("BALLS2");
+            }
+            while(time != 0){
+                if(time <= DEFAULT_TIME_QUANTUM){
+                    totalTime += time;
+                    time = 0;
+                } else{
+                    totalTime += DEFAULT_TIME_QUANTUM;
+                    time -= DEFAULT_TIME_QUANTUM;
+                    pushReadyFromRunning(commandIndex);
+                    for(int i = 0; i < MAX_COMMANDS; i++){
+                        if(strcmp(readyQ[i], commandName[commandNameIndex]) == 0){
+                            while(strcmp(readyQ[i], "\0") != 0){
+                                strcpy(readyQ[i], readyQ[i+1]);
+                                i++;
+                            }
+                            break;
+                        }
+                    }
+                    for(int i = 0; i < MAX_COMMANDS; i++){
+                        if(strcmp(runningQ[i], "\0") == 0){
+                            strcpy(runningQ[i], commandName[commandNameIndex]);
+                            break;
+                        }
+                    }
+                    totalTime += TIME_CONTEXT_SWITCH;
+                }
+            }
+            where = 1;
             commandExecutingIndex++;
             totalTime += TIME_CORE_STATE_TRANSITIONS;
             //printf("YIPPEEEEEEEE %i", totalTime);
-            where = 4;
         }
     }
+    if(hasPassed == 0){
+        printf("pass");
+        commandExecutingIndex = -1;
+        where = -1;
+    }
     printf("pushRunning end\n");
-    where = 4;
     printf("I LOVE BIG BALLS IF I PRINT THIS");
 }
 
