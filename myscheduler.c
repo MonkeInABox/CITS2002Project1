@@ -47,7 +47,8 @@ char readyQ[MAX_COMMANDS][21];
 char runningQ[MAX_COMMANDS][21];
 char blockedQ[MAX_COMMANDS][21];
 int totalTime = 0;
-int CPUtime = 0;
+int CPUTime = 0;
+int CPUPercent = 0;
 char commandName[MAX_COMMAND_NAME][MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];
 int waitTime[100];
 char* function[100];
@@ -263,6 +264,7 @@ void pushRunning(int commandIndex){
             waitTime[commandIndex] = 0;
         } else{
             totalTime += DEFAULT_TIME_QUANTUM;
+            CPUTime += DEFAULT_TIME_QUANTUM;
             waitTime[commandIndex] -= DEFAULT_TIME_QUANTUM;
             pushReadyFromRunning(commandIndex);
             for(int i = 0; i < MAX_COMMANDS; i++){
@@ -311,6 +313,7 @@ void pushRunning(int commandIndex){
                     time = 0;
                 } else{
                     totalTime += DEFAULT_TIME_QUANTUM;
+                    CPUTime += DEFAULT_TIME_QUANTUM;
                     time -= DEFAULT_TIME_QUANTUM;
                     pushReadyFromRunning(commandIndex);
                     for(int i = 0; i < MAX_COMMANDS; i++){
@@ -346,6 +349,7 @@ void pushRunning(int commandIndex){
                     time = 0;
                 } else{
                     totalTime += DEFAULT_TIME_QUANTUM;
+                    CPUTime += DEFAULT_TIME_QUANTUM;
                     time -= DEFAULT_TIME_QUANTUM;
                     pushReadyFromRunning(commandIndex);
                     for(int i = 0; i < MAX_COMMANDS; i++){
@@ -409,6 +413,7 @@ int execute_commands()
             pushReadyFromRunning(commandExecutingIndex);
         }
     }
+    CPUPercent = (CPUTime * 100) / totalTime;
 }
 
 //  ----------------------------------------------------------------------
@@ -431,7 +436,7 @@ int main(int argc, char *argv[])
     execute_commands();
 
 //  PRINT THE PROGRAM'S RESULTS
-    printf("measurements  %i  %i\n", totalTime, 0);
+    printf("measurements  %i  %i\n", totalTime, CPUPercent);
 
     exit(EXIT_SUCCESS);
 }
