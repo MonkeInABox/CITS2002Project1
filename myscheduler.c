@@ -57,6 +57,7 @@ int amountOfB[100];
 int where = 0;
 int commandExecutingIndex = 0;
 int done = 0;
+int commandNameIndex = 0;
 
 
 void read_sysconfig(char argv0[], char filename[])
@@ -135,7 +136,8 @@ void read_commands(char argv0[], char filename[])
     //while(placeHolderC[i] != NULL){
     if(strcmp(placeHolderC[i], "#") == 13){
         i++;
-        strcpy(commandName, placeHolderC[i]);
+        strcpy(commandName[i-1], placeHolderC[i]);
+        commandNameIndex = i - 1;
         while(strcmp(placeHolderC[i], "#") != 13){
             i++;
             char* stringTemp;
@@ -184,7 +186,7 @@ void read_commands(char argv0[], char filename[])
         }
         
     }  
-    printf("%s", commandName);
+    printf("%s", commandName[commandNameIndex]);
     //printf("%i", sleepTime);
 }
 
@@ -197,7 +199,7 @@ void read_commands(char argv0[], char filename[])
 void pushReadyFromBlocked(int commandIndex){
     printf("ReadyFromBlocked commence \n");
     for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(blockedQ[i], function[commandIndex]) == 0){
+        if(strcmp(blockedQ[i], commandName[commandNameIndex]) == 0){
             while(strcmp(blockedQ[i], "\0") != 0){
                 strcpy(blockedQ[i], blockedQ[i+1]);
                 i++;
@@ -207,7 +209,7 @@ void pushReadyFromBlocked(int commandIndex){
     }
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], "\0") == 0){
-            strcpy(readyQ[i], function[commandIndex]);
+            strcpy(readyQ[i], commandName[commandNameIndex]);
             break;
         }
     }
@@ -219,7 +221,7 @@ void pushReadyFromBlocked(int commandIndex){
 void pushReadyFromRunning(int commandIndex){
     printf("ReadyFromRunning commence \n");
     for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(runningQ[i], function[commandIndex]) == 0){
+        if(strcmp(runningQ[i], commandName[commandNameIndex]) == 0){
             while(strcmp(runningQ[i], "\0") != 0){
                 strcpy(runningQ[i], runningQ[i+1]);
                 i++;
@@ -230,7 +232,7 @@ void pushReadyFromRunning(int commandIndex){
     printf("YOPE");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], "\0") == 0){
-            strcpy(readyQ[i], function[commandIndex]);
+            strcpy(readyQ[i], commandName[commandNameIndex]);
             break;
         }
     }
@@ -242,7 +244,7 @@ void pushReadyFromRunning(int commandIndex){
 void pushBlocked(int commandIndex){
     printf("pushBlocked commence \n");
     for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(runningQ[i], function[commandIndex]) == 0){
+        if(strcmp(runningQ[i], commandName[commandNameIndex]) == 0){
             while(strcmp(runningQ[i], "\0") != 0){
                 strcpy(runningQ[i], runningQ[i+1]);
                 i++;
@@ -252,7 +254,7 @@ void pushBlocked(int commandIndex){
     }
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(blockedQ[i], "\0") == 0){
-            strcpy(blockedQ[i], function[commandIndex]);
+            strcpy(blockedQ[i], commandName[commandNameIndex]);
             break;
         }
     }
@@ -269,22 +271,19 @@ void pushBlocked(int commandIndex){
 void pushRunning(int commandIndex){
     printf("pushRunning commence\n");
     for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(readyQ[i], function[commandIndex]) == 0){
+        if(strcmp(readyQ[i], commandName[commandNameIndex]) == 0){
             while(strcmp(readyQ[i], "\0") != 0){
                 strcpy(readyQ[i], readyQ[i+1]);
                 i++;
             }
             break;
         }
-        //printf("pop");
     }
-    //printf("%i", commandIndex);
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(runningQ[i], "\0") == 0){
-            strcpy(runningQ[i], function[commandIndex]);
+            strcpy(runningQ[i], commandName[commandNameIndex]);
             break;
         }
-        //printf("pop");
     }
     totalTime += TIME_CONTEXT_SWITCH;
     while(waitTime[commandIndex] != 0){
@@ -295,7 +294,22 @@ void pushRunning(int commandIndex){
             totalTime += DEFAULT_TIME_QUANTUM;
             waitTime[commandIndex] -= DEFAULT_TIME_QUANTUM;
             pushReadyFromRunning(commandIndex);
-            //printf("popwaitwait");
+            for(int i = 0; i < MAX_COMMANDS; i++){
+                if(strcmp(readyQ[i], commandName[commandNameIndex]) == 0){
+                    while(strcmp(readyQ[i], "\0") != 0){
+                        strcpy(readyQ[i], readyQ[i+1]);
+                        i++;
+                    }
+                    break;
+                }
+            }
+            for(int i = 0; i < MAX_COMMANDS; i++){
+                if(strcmp(runningQ[i], "\0") == 0){
+                    strcpy(runningQ[i], commandName[commandNameIndex]);
+                    break;
+                }
+            }
+            totalTime += TIME_CONTEXT_SWITCH;
         }
     }
     //printf("TEST TEST: %i \n", strcmp(function[commandIndex], "exit"));
@@ -358,7 +372,7 @@ int pushReadyFromNew(int commandIndex){
     printf("ReadyFromNew commence\n");
     for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], "\0") == 0){
-            strcpy(readyQ[i], commandName);
+            strcpy(readyQ[i], commandName[commandNameIndex]);
             break;
         }
     }
