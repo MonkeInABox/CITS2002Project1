@@ -134,6 +134,7 @@ void read_commands(char argv0[], char filename[])
     int sleep = 0;
     int i = 0;
     int dataTypeNumber = 0;
+    int totalWait = 0;
     //while(placeHolderC[i] != NULL){
     if(strcmp(placeHolderC[i], "#") == 13){
         i++;
@@ -145,12 +146,8 @@ void read_commands(char argv0[], char filename[])
             stringTemp = strtok(placeHolderC[i], " ");
             while(stringTemp != NULL){
                 if(dataTypeNumber == 0){
-                    if(i == 2){
-                        waitTime[i-2] = atoi(stringTemp);
-                    }
-                    else {
-                        waitTime[i-2] = atoi(stringTemp) - waitTime[i-3];
-                    }
+                    waitTime[i-2] = atoi(stringTemp) - totalWait;
+                    totalWait = atoi(stringTemp);
                     //printf("%i \n", waitTime[commandNum-1]);
                     //printf("%i", commandNum-1);
                 }
@@ -188,6 +185,9 @@ void read_commands(char argv0[], char filename[])
         
     }  
     printf("%s", commandName[commandNameIndex]);
+    printf("%i", waitTime[0]);
+    printf("%i", waitTime[1]);
+    printf("%i", waitTime[2]);
     //printf("%i", sleepTime);
 }
 
@@ -315,7 +315,7 @@ void pushRunning(int commandIndex){
         }
     }
     printf("\n THIS IS THE FUNCTION!!!!!! %s \n", function[commandIndex]);
-    printf("TEST TEST: %i \n", strcmp(function[commandIndex], "exit"));
+    //printf("TEST TEST: %i \n", strcmp(function[commandIndex], "exit"));
     
     //printf("after waits: %i\n", totalTime);
     if(sleepTime[commandIndex] != 0){
@@ -333,7 +333,7 @@ void pushRunning(int commandIndex){
             //printf("%i", strcmp(deviceName[i], position[commandIndex]));
             if(strcmp(deviceName[i], position[commandIndex]) == 0){
                 deviceIndex = i;
-                printf("%i", deviceIndex);
+                printf("\n \n %s \n \n", deviceName[deviceIndex]);
                 break;
             }
         }
@@ -346,7 +346,7 @@ void pushRunning(int commandIndex){
             int time = amountOfB[commandIndex] / (writeSpeed[deviceIndex]/1000000);
             if(dataBus == 0){
                 totalTime += TIME_ACQUIRE_BUS;
-                dataBus == 1;
+                dataBus = 1;
                 printf("BALLS");
             }
             while(time != 0){
@@ -385,7 +385,7 @@ void pushRunning(int commandIndex){
             int time = amountOfB[commandIndex] / (readSpeed[deviceIndex]/1000000);
             if(dataBus == 0){
                 totalTime += TIME_ACQUIRE_BUS;
-                dataBus == 1;
+                dataBus = 1;
                 printf("BALLS2");
             }
             while(time != 0){
@@ -420,13 +420,13 @@ void pushRunning(int commandIndex){
             //printf("YIPPEEEEEEEE %i", totalTime);
         }
     }
-    if(hasPassed == 0){
+    else{
         printf("pass");
         commandExecutingIndex = -1;
         where = -1;
     }
     printf("pushRunning end\n");
-    printf("I LOVE BIG BALLS IF I PRINT THIS");
+    //printf("I LOVE BIG BALLS IF I PRINT THIS");
 }
 
 int pushReadyFromNew(int commandIndex){
