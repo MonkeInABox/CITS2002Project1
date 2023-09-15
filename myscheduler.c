@@ -354,7 +354,9 @@ void pushRunning(int commandIndex){
     totalTime += TIME_CONTEXT_SWITCH;
     CPUTime += TIME_CONTEXT_SWITCH;
     //check the time quantum and divide the function accordingly
-    while(waitTime[commandIndex] != 0){
+    while(waitTime[commandIndex] > 0){
+        printf("waitTime: %i\n", waitTime[commandIndex]);
+        printf("totalTime: %i\n", totalTime);
         if(waitTime[commandIndex] <= DEFAULT_TIME_QUANTUM){
             totalTime += waitTime[commandIndex];
             CPUTime += waitTime[commandIndex];
@@ -378,6 +380,7 @@ void pushRunning(int commandIndex){
                     break;
                 }
             }
+            totalTime += TIME_CONTEXT_SWITCH;
         }
     }
     //if there is sleep time (i.e. it is a sleep function), where is 2, so it can be blocked
