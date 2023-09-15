@@ -393,12 +393,7 @@ void pushRunning(int commandIndex){
         }
         //if write, use the write speed of the device to get the total time
         if(strcmp(function[commandIndex], "write") == 0){
-            float time = 0;
-            if(amountOfB[commandIndex]/writeSpeed[deviceIndex] == 0.0){
-                time = amountOfB[commandIndex] / (writeSpeed[deviceIndex]/1000000);
-            } else{
-                time = (amountOfB[commandIndex] / writeSpeed[deviceIndex])*1000000;
-            }
+            float time = amountOfB[commandIndex] / (writeSpeed[deviceIndex]/1000000);
             if(dataBus == 0){
                 totalTime += TIME_ACQUIRE_BUS;
                 CPUTime += TIME_ACQUIRE_BUS;
@@ -409,16 +404,11 @@ void pushRunning(int commandIndex){
             totalTime += time;
             where = 4;
             commandExecutingIndex++;
+            dataBus = 0;
         }
         //if read, use the read speed of the device to get the total time
         else if(strcmp(function[commandIndex], "read") == 0){
-            float time = 0.0;
-            printf("%f\n", amountOfB[commandIndex]/readSpeed[deviceIndex]);
-            if(amountOfB[commandIndex]/readSpeed[deviceIndex] == 0.0){
-                time = amountOfB[commandIndex] / (readSpeed[deviceIndex]/1000000);
-            } else{
-                time = (amountOfB[commandIndex] / readSpeed[deviceIndex])*1000000;
-            }
+            float time = amountOfB[commandIndex] / (readSpeed[deviceIndex]/1000000);
             if(dataBus == 0){
                 totalTime += TIME_ACQUIRE_BUS;
                 CPUTime += TIME_ACQUIRE_BUS;
@@ -429,6 +419,7 @@ void pushRunning(int commandIndex){
             totalTime += time;
             where = 4;
             commandExecutingIndex++;
+            dataBus = 0;
         }
     }
     //otherwise if its spawn...
