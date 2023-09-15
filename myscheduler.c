@@ -52,7 +52,7 @@ int totalTime = 0;                              //A counter for the total amount
 int CPUTime = 0;                                //A counter for the total amount of time that has passed, but only involving the CPU (returned at end)
 int CPUPercent = 0;                             //The percentage of time in CPU vs. elsewhere (total time/cpu time) times 100
 char commandName[MAX_COMMANDS][MAX_COMMAND_NAME + 1];         //Array of names of the different commands in the commands file
-int waitTime[MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];        //Array of the wait times for each function in the commands file
+int execTime[MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];        //Array of the execution times for each function in the commands file
 char* function[MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];      //Array of the function names for each function in the commands file
 char* position[MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];      //Array of the position in the system (i.e. hard-drive) for each function in the commands file
 int sleepTime[MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];       //Array of the sleep time for each function in the commands file (empty if not sleeping)
@@ -132,7 +132,7 @@ int spawn_read(int currentIndex, char commName[]){
             stringTemp = strtok(placeHolderC[placeHolderCIndex], " ");
             while(stringTemp != NULL){
                 if(dataTypeNumber == 0){
-                    waitTime[currentIndex] = atoi(stringTemp) - totalWait;
+                    execTime[currentIndex] = atoi(stringTemp) - totalWait;
                     totalWait = atoi(stringTemp);
                 }
                 if(dataTypeNumber == 1){
@@ -200,7 +200,7 @@ void read_commands(char argv0[], char filename[])
             stringTemp = strtok(placeHolderC[placeHolderCIndex], " ");
             while(stringTemp != NULL){
                 if(dataTypeNumber == 0){
-                    waitTime[copyIndex] = atoi(stringTemp) - totalWait;
+                    execTime[copyIndex] = atoi(stringTemp) - totalWait;
                     totalWait = atoi(stringTemp);
                 }
                 if(dataTypeNumber == 1){
@@ -267,7 +267,6 @@ void pullQueue(char queue[][MAX_COMMAND_NAME + 1]){
 
 //moved here after blocked
 void pushReadyFromBlocked(int commandIndex){
-    printf("readyFromBlocked begin\n");
     //remove from blocked queue
     pullQueue(blockedQ);
     //add to ready queue
@@ -275,30 +274,23 @@ void pushReadyFromBlocked(int commandIndex){
     //move back to running
     nextStep = 1;
     totalTime += TIME_CORE_STATE_TRANSITIONS;
-    CPUTime += TIME_CORE_STATE_TRANSITIONS;
-    printf("readyFromBlocked end\n");
 }
 
 //moved here once a function has been run
 void pushReadyFromRunning(int commandIndex){
-    //added to running queue
-    printf("readyFromRunning begin\n");
     //remove from running queue
     pullQueue(runningQ);
     //add to ready queue
     pushQueue(readyQ);
     //moved back to running
     totalTime += TIME_CORE_STATE_TRANSITIONS;
-    CPUTime += TIME_CORE_STATE_TRANSITIONS;
     nextStep = 1;
-    printf("readyFromRunning end\n");
 }
 
 
 //when a function is blocked (or sleeping), it goes here
 void pushBlocked(int commandIndex){
     //add function to blocked queue
-    printf("Blocked begin\n");
     //remove from running queue
     pullQueue(runningQ);
     //add to blocked queue
@@ -310,35 +302,28 @@ void pushBlocked(int commandIndex){
     }
     //move it to ready
     totalTime += TIME_CORE_STATE_TRANSITIONS;
-    CPUTime += TIME_CORE_STATE_TRANSITIONS;
     nextStep = 3;
-    printf("blocked end\n");
 }
 
 
 //When a command is running, it is given to this function
 void pushRunning(int commandIndex){
-    //add command to running queue
-    printf("running begin\n");
-    printf("%s\n", function[commandIndex]);
     //remove from ready queue
     pullQueue(readyQ);
     //add to running queue
     pushQueue(runningQ);
     totalTime += TIME_CONTEXT_SWITCH;
-    CPUTime += TIME_CONTEXT_SWITCH;
     //checks if there is an execution time, if there is, the execution time is added total time, accounting
     //for time quantum expiries
-    while(waitTime[commandIndex] > 0){
-        printf("waitTime: %i\n", waitTime[commandIndex]);
-        printf("totalTime: %i\n", totalTime);
-        if(waitTime[commandIndex] <= DEFAULT_TIME_QUANTUM){
-            totalTime += waitTime[commandIndex];
-            CPUTime += waitTime[commandIndex];
-            waitTime[commandIndex] = 0;
+    while(execTime[commandIndex] > 0){
+        if(execTime[commandIndex] <= DEFAULT_TIME_QUANTUM){
+            totalTime += execTime[commandIndex];
+            CPUTime += execTime[commandIndex];
+            execTime[commandIndex] = 0;
         } else{
             totalTime += DEFAULT_TIME_QUANTUM;
-            waitTime[commandIndex] -= DEFAULT_TIME_QUANTUM;
+            CPUTime += DEFAULT_TIME_QUANTUM;
+            execTime[commandIndex] -= DEFAULT_TIME_QUANTUM;
             //time quantum is reached therefore the command is pushed to the ready queue
             pushReadyFromRunning(commandIndex);
             //simulates pushing the command back into the run queue
@@ -365,7 +350,6 @@ void pushRunning(int commandIndex){
             float time = amountOfB[commandIndex] / (writeSpeed[deviceIndex]/1000000);
             if(dataBus == 0){
                 totalTime += TIME_ACQUIRE_BUS;
-                CPUTime += TIME_ACQUIRE_BUS;
                 dataBus = 1;
             }
             totalTime += time;
@@ -378,7 +362,6 @@ void pushRunning(int commandIndex){
             float time = amountOfB[commandIndex] / (readSpeed[deviceIndex]/1000000);
             if(dataBus == 0){
                 totalTime += TIME_ACQUIRE_BUS;
-                CPUTime += TIME_ACQUIRE_BUS;
                 dataBus = 1;
             }
             totalTime += time;
@@ -392,8 +375,6 @@ void pushRunning(int commandIndex){
         pushBlocked(commandExecutingIndex);
         commandExecutingIndex++;
         commandNameIndex++;
-        printf("%i", commandNameIndex);
-        printf("IT IS: %s\n", commandName[commandNameIndex]);
         for(int i = 0; i < MAX_COMMANDS; i++){
         if(strcmp(readyQ[i], "\0") == 0){
             strcpy(readyQ[i], commandName[commandNameIndex]);
@@ -418,7 +399,6 @@ void pushRunning(int commandIndex){
             nextStep = -1;
         }
     }
-    printf("running end\n");
 }
 
 
