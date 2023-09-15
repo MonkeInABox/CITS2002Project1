@@ -58,7 +58,7 @@ char* function[100];                            //Array of the function names fo
 char* position[100];                            //Array of the position in the system (i.e. hard-drive) for each function in the commands file
 int sleepTime[MAX_SYSCALLS_PER_PROCESS];        //Array of the sleep time for each function in the commands file (empty if not sleeping)
 float amountOfB[100];                             //Array of the amount of Bytes to be passed for each function in the commands file
-int where = 0;                                  //A counter to see where the function will be going, shown in execute commands
+int nextStep = 0;                                  //A counter to see where the function will be going, shown in execute commands
 int commandExecutingIndex = 0;                  //The index of the function that is currently being processed
 int commandNameIndex = 0;                       //The index of the command name currently being processed
 int dataBus = 0;                                //1 if the databus has already been gathered this function, 0 if not
@@ -111,53 +111,55 @@ FILE *sysconfigFile;
 }
 
 //inserts all instructions of the process that's spawned in between the parent process, returning the index
-//where the parent process will continues copying information into the arrays.
+//where the parent process will continue to copy information into the arrays.
 int spawn_read(int currentIndex, char commName[]){
-    //printf("spawn read commence \n");
-    //printf("%s \n", commName);
-    //printf("%i \n", strcmp(placeHolderC[19], commName));
     int sleep = 0;
     int dataTypeNumber = 0;
     int totalWait = 0;
     int placeHolderCIndex = 0;
+    int spawnConfirm = 0;
     commandNameIndex++;
     for(int i = 0; i < MAX_SYSCALLS_PER_PROCESS*MAX_COMMANDS; i++){
         if(strcmp(placeHolderC[i], commName) == 0){
             placeHolderCIndex = i;
             strcpy(commandName[commandNameIndex], placeHolderC[i]);
-            printf("broke \n");
             break;
         }
     }
-    int i = currentIndex;
     while(strcmp(placeHolderC[placeHolderCIndex], "#") != 13){
-            i++;
-            //printf("%s\n", placeHolderC[placeHolderCIndex]);
+            currentIndex++;
             placeHolderCIndex++;
-            //printf("%s\n", placeHolderC[placeHolderCIndex]);
             char* stringTemp;
             stringTemp = strtok(placeHolderC[placeHolderCIndex], " ");
             while(stringTemp != NULL){
                 if(dataTypeNumber == 0){
-                    //printf("%s\n", stringTemp);
-                    waitTime[i] = atoi(stringTemp) - totalWait;
+                    waitTime[currentIndex] = atoi(stringTemp) - totalWait;
                     totalWait = atoi(stringTemp);
                 }
                 if(dataTypeNumber == 1){
-                    function[i] = stringTemp;
+                    function[currentIndex] = stringTemp;
                     if(strcmp(stringTemp, "sleep") == 0){
                         sleep = 1;
+                    } else {
+                        sleep = 0;
+                    } 
+                    if(strcmp(stringTemp, "spawn") == 0){
+                        spawnConfirm = 1;
+                    } else{
+                        spawnConfirm = 0;
                     }
-                    else{sleep = 0;}
                 }
                 if(dataTypeNumber == 2){
                     if(sleep == 1){
-                        sleepTime[i] = atoi(stringTemp);
+                        sleepTime[currentIndex] = atoi(stringTemp);
+                    } else if(spawnConfirm == 1){
+                        currentIndex = spawn_read(currentIndex,stringTemp);
+                    } else{
+                        position[currentIndex] = stringTemp;
                     }
-                    else{position[i] = stringTemp;}
                 }
                 if(dataTypeNumber == 3){
-                    amountOfB[i] = atoi(stringTemp);
+                    amountOfB[currentIndex] = atoi(stringTemp);
                 }
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
@@ -165,7 +167,7 @@ int spawn_read(int currentIndex, char commName[]){
             dataTypeNumber = 0;                               //Reset back to zero for the next function
         }
         commandNameIndex--;
-        return i-1;
+        return currentIndex-1;
     }
 
 void read_commands(char argv0[], char filename[])
@@ -185,7 +187,7 @@ void read_commands(char argv0[], char filename[])
     //using dataTypeNumber to keep track of what type of data is being accessed. 
     int spawnConfirm = 0;
     int sleep = 0;
-    int i = -1;
+    int copyIndex = -1;
     int placeHolderCIndex = 0;
     int dataTypeNumber = 0;
     int totalWait = 0;
@@ -193,43 +195,39 @@ void read_commands(char argv0[], char filename[])
         placeHolderCIndex++;
         strcpy(commandName[commandNameIndex], placeHolderC[placeHolderCIndex]);
         while(strcmp(placeHolderC[placeHolderCIndex], "#") != 13){
-            i++;
+            copyIndex++;
             placeHolderCIndex++;
             char* stringTemp;
             stringTemp = strtok(placeHolderC[placeHolderCIndex], " ");
-            //printf("%s\n", placeHolderC[i]);
             while(stringTemp != NULL){
                 if(dataTypeNumber == 0){
-                    waitTime[i] = atoi(stringTemp) - totalWait;
+                    waitTime[copyIndex] = atoi(stringTemp) - totalWait;
                     totalWait = atoi(stringTemp);
                 }
                 if(dataTypeNumber == 1){
-                    function[i] = stringTemp;
+                    function[copyIndex] = stringTemp;
                     if(strcmp(stringTemp, "sleep") == 0){
                         sleep = 1;
-                    }
-                    else{
+                    } else{
                         sleep = 0;
                     }
                     if(strcmp(stringTemp, "spawn") == 0){
                         spawnConfirm = 1;
-                    }
-                    else{
+                    } else{
                         spawnConfirm = 0;
                     }
                 }
                 if(dataTypeNumber == 2){
                     if(sleep == 1){
-                        sleepTime[i] = atoi(stringTemp);
+                        sleepTime[copyIndex] = atoi(stringTemp);
                     } else if(spawnConfirm == 1){
-                        i = spawn_read(i,stringTemp);
-                    }
-                    else{
-                        position[i] = stringTemp;
+                        copyIndex = spawn_read(copyIndex,stringTemp);
+                    } else{
+                        position[copyIndex] = stringTemp;
                     }
                 }
                 if(dataTypeNumber == 3){
-                    amountOfB[i] = atoi(stringTemp);
+                    amountOfB[copyIndex] = atoi(stringTemp);
                 }
                 dataTypeNumber++;
                 stringTemp = strtok(NULL, " ");
@@ -245,28 +243,38 @@ void read_commands(char argv0[], char filename[])
 //      FUNCTIONS TO BE USED BY EXECUTE
 //  ----------------------------------------------------
 
+//pushes commands into the required queue
+void pushQueue(char queue[][MAX_COMMAND_NAME + 1]){
+    for(int i = 0; i < MAX_COMMANDS; i++){
+            if(strcmp(queue[i], "\0") == 0){
+                strcpy(queue[i], commandName[commandNameIndex]);
+                break;
+            }
+    }
+}
+
+//pulls commands from the required queue
+void pullQueue(char queue[][MAX_COMMAND_NAME + 1]){
+    for(int i = 0; i < MAX_COMMANDS; i++){
+            if(strcmp(queue[i], commandName[commandNameIndex]) == 0){
+                while(strcmp(queue[i], "\0") != 0){
+                    strcpy(queue[i], queue[i+1]);
+                    i++;
+                }
+                break;
+            }
+    }
+}
 
 //moved here after blocked
 void pushReadyFromBlocked(int commandIndex){
     printf("readyFromBlocked begin\n");
-    //add to blocked queue
-    for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(blockedQ[i], commandName[commandNameIndex]) == 0){
-            while(strcmp(blockedQ[i], "\0") != 0){
-                strcpy(blockedQ[i], blockedQ[i+1]);
-                i++;
-            }
-            break;
-        }
-    }
-    for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(readyQ[i], "\0") == 0){
-            strcpy(readyQ[i], commandName[commandNameIndex]);
-            break;
-        }
-    }
+    //remove from blocked queue
+    pullQueue(blockedQ);
+    //add to ready queue
+    pushQueue(readyQ);
     //move back to running
-    where = 1;
+    nextStep = 1;
     totalTime += TIME_CORE_STATE_TRANSITIONS;
     CPUTime += TIME_CORE_STATE_TRANSITIONS;
     printf("readyFromBlocked end\n");
@@ -276,25 +284,14 @@ void pushReadyFromBlocked(int commandIndex){
 void pushReadyFromRunning(int commandIndex){
     //added to running queue
     printf("readyFromRunning begin\n");
-    for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(runningQ[i], commandName[commandNameIndex]) == 0){
-            while(strcmp(runningQ[i], "\0") != 0){
-                strcpy(runningQ[i], runningQ[i+1]);
-                i++;
-            }
-            break;
-        }
-    }
-    for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(readyQ[i], "\0") == 0){
-            strcpy(readyQ[i], commandName[commandNameIndex]);
-            break;
-        }
-    }
+    //remove from running queue
+    pullQueue(runningQ);
+    //add to ready queue
+    pushQueue(readyQ);
     //moved back to running
     totalTime += TIME_CORE_STATE_TRANSITIONS;
     CPUTime += TIME_CORE_STATE_TRANSITIONS;
-    where = 1;
+    nextStep = 1;
     printf("readyFromRunning end\n");
 }
 
@@ -303,21 +300,10 @@ void pushReadyFromRunning(int commandIndex){
 void pushBlocked(int commandIndex){
     //add function to blocked queue
     printf("Blocked begin\n");
-    for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(runningQ[i], commandName[commandNameIndex]) == 0){
-            while(strcmp(runningQ[i], "\0") != 0){
-                strcpy(runningQ[i], runningQ[i+1]);
-                i++;
-            }
-            break;
-        }
-    }
-    for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(blockedQ[i], "\0") == 0){
-            strcpy(blockedQ[i], commandName[commandNameIndex]);
-            break;
-        }
-    }
+    //remove from running queue
+    pullQueue(runningQ);
+    //add to blocked queue
+    pushQueue(blockedQ);
     //if it is here because it is sleeping, add the sleep time
     if(sleepTime[commandIndex] != 0){
         totalTime += sleepTime[commandIndex];
@@ -326,7 +312,7 @@ void pushBlocked(int commandIndex){
     //move it to ready
     totalTime += TIME_CORE_STATE_TRANSITIONS;
     CPUTime += TIME_CORE_STATE_TRANSITIONS;
-    where = 3;
+    nextStep = 3;
     printf("blocked end\n");
 }
 
@@ -336,24 +322,14 @@ void pushRunning(int commandIndex){
     //add command to running queue
     printf("running begin\n");
     printf("%s\n", function[commandIndex]);
-    for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(readyQ[i], commandName[commandNameIndex]) == 0){
-            while(strcmp(readyQ[i], "\0") != 0){
-                strcpy(readyQ[i], readyQ[i+1]);
-                i++;
-            }
-            break;
-        }
-    }
-    for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(runningQ[i], "\0") == 0){
-            strcpy(runningQ[i], commandName[commandNameIndex]);
-            break;
-        }
-    }
+    //remove from ready queue
+    pullQueue(readyQ);
+    //add to running queue
+    pushQueue(runningQ);
     totalTime += TIME_CONTEXT_SWITCH;
     CPUTime += TIME_CONTEXT_SWITCH;
-    //check the time quantum and divide the function accordingly
+    //checks if there is an execution time, if there is, the execution time is added total time, accounting
+    //for time quantum expiries
     while(waitTime[commandIndex] > 0){
         printf("waitTime: %i\n", waitTime[commandIndex]);
         printf("totalTime: %i\n", totalTime);
@@ -364,28 +340,17 @@ void pushRunning(int commandIndex){
         } else{
             totalTime += DEFAULT_TIME_QUANTUM;
             waitTime[commandIndex] -= DEFAULT_TIME_QUANTUM;
+            //time quantum is reached therefore the command is pushed to the ready queue
             pushReadyFromRunning(commandIndex);
-            for(int i = 0; i < MAX_COMMANDS; i++){
-                if(strcmp(readyQ[i], commandName[commandNameIndex]) == 0){
-                    while(strcmp(readyQ[i], "\0") != 0){
-                        strcpy(readyQ[i], readyQ[i+1]);
-                        i++;
-                    }
-                    break;
-                }
-            }
-            for(int i = 0; i < MAX_COMMANDS; i++){
-                if(strcmp(runningQ[i], "\0") == 0){
-                    strcpy(runningQ[i], commandName[commandNameIndex]);
-                    break;
-                }
-            }
+            //simulates pushing the command back into the run queue
+            pullQueue(readyQ);
+            pushQueue(runningQ);
             totalTime += TIME_CONTEXT_SWITCH;
         }
     }
-    //if there is sleep time (i.e. it is a sleep function), where is 2, so it can be blocked
+    //if there is sleep time (i.e. it is a sleep function), nextStep is 2, so it can be blocked
     if(sleepTime[commandIndex] != 0){
-        where = 2;
+        nextStep = 2;
     }
     //otherwise if it is a read or write function, check which device it is using, given by the deviceIndex
     else if(strcmp(function[commandIndex], "write") == 0 || strcmp(function[commandIndex], "read") == 0){
@@ -405,7 +370,7 @@ void pushRunning(int commandIndex){
                 dataBus = 1;
             }
             totalTime += time;
-            where = 4;
+            nextStep = 4;
             commandExecutingIndex++;
             dataBus = 0;
         }
@@ -418,13 +383,12 @@ void pushRunning(int commandIndex){
                 dataBus = 1;
             }
             totalTime += time;
-            where = 4;
+            nextStep = 4;
             commandExecutingIndex++;
             dataBus = 0;
         }
     }
-    //otherwise if its spawn...
-    //printf("%i\n",strcmp(commandName[commandIndex], "spawn") );
+    //otherwise if its spawn, the spawned process is moved to Ready and parent process moved to blocked
     else if(strcmp(function[commandIndex], "spawn") == 0){
         pushBlocked(commandExecutingIndex);
         commandExecutingIndex++;
@@ -437,22 +401,22 @@ void pushRunning(int commandIndex){
             break;
         }
         }
-        where = 1;
+        nextStep = 1;
         spawnProcess++;
     }
     else if(strcmp(function[commandIndex], "wait") == 13){
-        where = 1;
+        nextStep = 1;
         commandExecutingIndex++;
     }
-    //otherwise it is an exit function, in which case it will end the process
+    //otherwise it is an exit function, in which case it will end the command
     else{
         spawnProcess--;
-        where = 3;
+        nextStep = 3;
         commandNameIndex--;
         commandExecutingIndex++;
         if(spawnProcess == -1){
             commandExecutingIndex = -1;
-            where = -1;
+            nextStep = -1;
         }
     }
     printf("running end\n");
@@ -462,15 +426,9 @@ void pushRunning(int commandIndex){
 //function that each command goes through first when originally activated
 int pushReadyFromNew(int commandIndex){
     //Place new command name in the ready queue
-    printf("runningFromNew begin\n");
-    for(int i = 0; i < MAX_COMMANDS; i++){
-        if(strcmp(readyQ[i], "\0") == 0){
-            strcpy(readyQ[i], commandName[commandNameIndex]);
-            break;
-        }
-    }
+    //add to ready queue
+    pushQueue(readyQ);
     //return 1 to get to the next function
-    printf("runningFromNew end\n");
     return 1; 
 }
 
@@ -482,20 +440,20 @@ int pushReadyFromNew(int commandIndex){
 void execute_commands()
 {
     //initialise new command by passing through ready:
-    where = pushReadyFromNew(commandExecutingIndex);
-    //checking what where has become before moving onto the respective function, allowing for
+    nextStep = pushReadyFromNew(commandExecutingIndex);
+    //checking what nextStep has become before moving onto the respective function, allowing for
     //the function to move through the desired path. 
     while(commandExecutingIndex != -1){
-        if(where == 1){
+        if(nextStep == 1){
             pushRunning(commandExecutingIndex);
         }
-        if(where == 2){
+        if(nextStep == 2){
             pushBlocked(commandExecutingIndex);
         }
-        if(where == 3){
+        if(nextStep == 3){
             pushReadyFromBlocked(commandExecutingIndex);
         }
-        if(where == 4){
+        if(nextStep == 4){
             pushReadyFromRunning(commandExecutingIndex);
         }
     }
