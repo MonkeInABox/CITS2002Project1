@@ -351,6 +351,8 @@ void pushRunning(int commandIndex){
             break;
         }
     }
+    totalTime += TIME_CONTEXT_SWITCH;
+    CPUTime += TIME_CONTEXT_SWITCH;
     //check the time quantum and divide the function accordingly
     while(waitTime[commandIndex] != 0){
         if(waitTime[commandIndex] <= DEFAULT_TIME_QUANTUM){
@@ -398,8 +400,6 @@ void pushRunning(int commandIndex){
                 totalTime += TIME_ACQUIRE_BUS;
                 CPUTime += TIME_ACQUIRE_BUS;
                 dataBus = 1;
-                totalTime += TIME_CONTEXT_SWITCH;
-                CPUTime += TIME_CONTEXT_SWITCH;
             }
             totalTime += time;
             where = 4;
@@ -413,8 +413,6 @@ void pushRunning(int commandIndex){
                 totalTime += TIME_ACQUIRE_BUS;
                 CPUTime += TIME_ACQUIRE_BUS;
                 dataBus = 1;
-                totalTime += TIME_CONTEXT_SWITCH;
-                CPUTime += TIME_CONTEXT_SWITCH;
             }
             totalTime += time;
             where = 4;
