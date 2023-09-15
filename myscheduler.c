@@ -114,7 +114,7 @@ FILE *sysconfigFile;
 int spawn_read(int currentIndex, char commName[]){
     int sleep = 0;
     int dataTypeNumber = 0;
-    int totalWait = 0;
+    int totalExec = 0;
     int placeHolderCIndex = 0;
     int spawnConfirm = 0;
     commandNameIndex++;
@@ -132,8 +132,8 @@ int spawn_read(int currentIndex, char commName[]){
             stringTemp = strtok(placeHolderC[placeHolderCIndex], " ");
             while(stringTemp != NULL){
                 if(dataTypeNumber == 0){
-                    execTime[currentIndex] = atoi(stringTemp) - totalWait;
-                    totalWait = atoi(stringTemp);
+                    execTime[currentIndex] = atoi(stringTemp) - totalExec;
+                    totalExec = atoi(stringTemp);
                 }
                 if(dataTypeNumber == 1){
                     function[currentIndex] = stringTemp;
@@ -189,7 +189,7 @@ void read_commands(char argv0[], char filename[])
     int copyIndex = -1;
     int placeHolderCIndex = 0;
     int dataTypeNumber = 0;
-    int totalWait = 0;
+    int totalExec = 0;
     if(strcmp(placeHolderC[placeHolderCIndex], "#") == 13){
         placeHolderCIndex++;
         strcpy(commandName[commandNameIndex], placeHolderC[placeHolderCIndex]);
@@ -200,8 +200,8 @@ void read_commands(char argv0[], char filename[])
             stringTemp = strtok(placeHolderC[placeHolderCIndex], " ");
             while(stringTemp != NULL){
                 if(dataTypeNumber == 0){
-                    execTime[copyIndex] = atoi(stringTemp) - totalWait;
-                    totalWait = atoi(stringTemp);
+                    execTime[copyIndex] = atoi(stringTemp) - totalExec;
+                    totalExec = atoi(stringTemp);
                 }
                 if(dataTypeNumber == 1){
                     function[copyIndex] = stringTemp;
