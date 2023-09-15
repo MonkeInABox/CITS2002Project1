@@ -321,7 +321,6 @@ void pushBlocked(int commandIndex){
     //if it is here because it is sleeping, add the sleep time
     if(sleepTime[commandIndex] != 0){
         totalTime += sleepTime[commandIndex];
-        CPUTime += sleepTime[commandIndex];
         commandExecutingIndex++;
     }
     //move it to ready
