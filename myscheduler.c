@@ -40,25 +40,24 @@
 
 #define CHAR_COMMENT                    "#"
 
-char placeHolderC[100][150];                    //The array of placeholder strings when reading the commands file
-char placeHolderS[MAX_DEVICES + 4][150];        //The array of placeholder strings when reading the sysconfig file
-char *deviceName[MAX_DEVICES];                  //The array of device names gathered from the sysconfig file
+char placeHolderC[MAX_COMMANDS * (1 + MAX_SYSCALLS_PER_PROCESS) + 1][150];      //The array of placeholder strings when reading the commands file
+char placeHolderS[MAX_DEVICES + 4][150];          //The array of placeholder strings when reading the sysconfig file
+char *deviceName[MAX_DEVICES];                    //The array of device names gathered from the sysconfig file
 float readSpeed[MAX_DEVICES];                     //The array of devices read speeds gathered from the sysconfig file
 float writeSpeed[MAX_DEVICES];                    //The array of devices write speeds gathered from the sysconfig file
-char readyQ[MAX_COMMANDS][21];                  //The array of functions currently waiting in ready
-char runningQ[MAX_COMMANDS][21];                //The array of functions currently waiting in running
-char blockedQ[MAX_COMMANDS][21];                //The array of functions currently waiting in blocked
+char readyQ[MAX_COMMANDS][MAX_COMMAND_NAME + 1];                  //The array of functions currently waiting in ready
+char runningQ[MAX_COMMANDS][MAX_COMMAND_NAME + 1];                //The array of functions currently waiting in running
+char blockedQ[MAX_COMMANDS][MAX_COMMAND_NAME + 1];                //The array of functions currently waiting in blocked
 int totalTime = 0;                              //A counter for the total amount of time that has passed (returned at end)
 int CPUTime = 0;                                //A counter for the total amount of time that has passed, but only involving the CPU (returned at end)
 int CPUPercent = 0;                             //The percentage of time in CPU vs. elsewhere (total time/cpu time) times 100
-char commandName[MAX_COMMAND_NAME][MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];
-                                                //Array of names of the different commands in the commands file
-int waitTime[100];                              //Array of the wait times for each function in the commands file
-char* function[100];                            //Array of the function names for each function in the commands file
-char* position[100];                            //Array of the position in the system (i.e. hard-drive) for each function in the commands file
-int sleepTime[MAX_SYSCALLS_PER_PROCESS];        //Array of the sleep time for each function in the commands file (empty if not sleeping)
-float amountOfB[100];                             //Array of the amount of Bytes to be passed for each function in the commands file
-int nextStep = 0;                                  //A counter to see where the function will be going, shown in execute commands
+char commandName[MAX_COMMANDS][MAX_COMMAND_NAME + 1];         //Array of names of the different commands in the commands file
+int waitTime[MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];        //Array of the wait times for each function in the commands file
+char* function[MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];      //Array of the function names for each function in the commands file
+char* position[MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];      //Array of the position in the system (i.e. hard-drive) for each function in the commands file
+int sleepTime[MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];       //Array of the sleep time for each function in the commands file (empty if not sleeping)
+float amountOfB[MAX_COMMANDS * MAX_SYSCALLS_PER_PROCESS];     //Array of the amount of Bytes to be passed for each function in the commands file
+int nextStep = 0;                               //A counter to see where the function will be going, shown in execute commands
 int commandExecutingIndex = 0;                  //The index of the function that is currently being processed
 int commandNameIndex = 0;                       //The index of the command name currently being processed
 int dataBus = 0;                                //1 if the databus has already been gathered this function, 0 if not
